@@ -39,7 +39,7 @@
 
 <body onload="javascript:init();">
 
-<div data-surround="false" data-file="html/canvas.html"><canvas id="canvas">Canvas failed to load</canvas></div>
+<div data-before="" data-after="" data-file="html/canvas.html"><canvas id="canvas">Canvas failed to load</canvas></div>
 
 <script data-file="shaders/shader.vert" type="x-shader/x-vertex">{{shaderVERT}}</script>
 
@@ -57,9 +57,11 @@
     </div>
 
     <div id="data_file_settings">
-      <div data-key="surround-file-content">
+      <div data-key="data-file-tags">
 
         <div data-tag="default">
+          <div data-key="trim">true</div>
+
           <div data-key="before">
 &lt;!--
 </div>
