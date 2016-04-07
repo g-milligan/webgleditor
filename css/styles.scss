@@ -1,6 +1,8 @@
 @import "app/var";
 @import "app/mixins";
 
+@import "app/base";
+
 /*codemirror*/
 @import "vendor/codemirror/codemirror";
 @import "vendor/codemirror/addon/show-hint";

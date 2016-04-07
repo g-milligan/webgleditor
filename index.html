@@ -11,7 +11,9 @@
   <script type="text/javascript" src="js/app.js"></script>
 </head>
 <body>
-  
+
+  <div id="frontend-ui"></div>
+
   <div id="app_data">
     <div id="startup_template">default</div>
     <div id="templates">
@@ -55,7 +57,7 @@
     </div>
 
     <div id="template_inserts">
-      <div data-insert="mainJS"><!--
+      <div data-insert="{{mainJS}}"><!--
 var ctx, canvas;
 
 function init(){
@@ -70,27 +72,27 @@ function init(){
 // more code here...
 
       --></div>
-      <div data-insert="utilsJS"><!--
+      <div data-insert="{{utilsJS}}"><!--
 
 // your code here...
 
       --></div>
-      <div data-insert="shaderVERT"><!--
+      <div data-insert="{{shaderVERT}}"><!--
 
 /* Vertex shader code... */
 
       --></div>
-      <div data-insert="shaderFRAG"><!--
+      <div data-insert="{{shaderFRAG}}"><!--
 
 /* Fragment shader code... */
 
       --></div>
-      <div data-insert="stylesCSS"><!--
+      <div data-insert="{{stylesCSS}}"><!--
 
 /* your styles here... */
 
       --></div>
-      <div data-insert="glMatrixJS"><!--
+      <div data-insert="{{glMatrixJS}}"><!--
 /*glMatrix v0.9.5*/
 glMatrixArrayType=typeof Float32Array!="undefined"?Float32Array:typeof WebGLFloatArray!="undefined"?WebGLFloatArray:Array;var vec3={};vec3.create=function(a){var b=new glMatrixArrayType(3);if(a){b[0]=a[0];b[1]=a[1];b[2]=a[2]}return b};vec3.set=function(a,b){b[0]=a[0];b[1]=a[1];b[2]=a[2];return b};vec3.add=function(a,b,c){if(!c||a==c){a[0]+=b[0];a[1]+=b[1];a[2]+=b[2];return a}c[0]=a[0]+b[0];c[1]=a[1]+b[1];c[2]=a[2]+b[2];return c};
 vec3.subtract=function(a,b,c){if(!c||a==c){a[0]-=b[0];a[1]-=b[1];a[2]-=b[2];return a}c[0]=a[0]-b[0];c[1]=a[1]-b[1];c[2]=a[2]-b[2];return c};vec3.negate=function(a,b){b||(b=a);b[0]=-a[0];b[1]=-a[1];b[2]=-a[2];return b};vec3.scale=function(a,b,c){if(!c||a==c){a[0]*=b;a[1]*=b;a[2]*=b;return a}c[0]=a[0]*b;c[1]=a[1]*b;c[2]=a[2]*b;return c};
