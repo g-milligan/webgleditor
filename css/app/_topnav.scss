@@ -1,5 +1,5 @@
 #topnav{
-  font-size:$f-size;line-height:($f-size * 2);padding:0 ($f-size / 2);background-color:$c-dark1;box-shadow:inset 0 0 10px $c-dark0;color:$c-medium-txt;
+  font-size:$f-size;line-height:($f-size * 2);padding:0 ($f-size / 2);background-color:$c-dark1;box-shadow:inset 0 0 10px $c-dark0;border-bottom:$c-dark0;color:$c-medium-txt;
 
   span{@include transition(color .1s linear, background-color .1s linear);}
 

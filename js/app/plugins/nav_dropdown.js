@@ -43,6 +43,7 @@ var navDropdown=(function(){
         var topUlEl=getArgEl('top_ul');
         if(topUlEl!=undefined && topUlEl.length>0){
           topUlEl.addClass('init_nav_dropdown');
+          var data_ids=getArg('data_ids');
           //iterate over each child li, recursively
           var iterateChildLis=function(ul,lvl){
             var childLis=ul.children('li');
@@ -61,7 +62,14 @@ var navDropdown=(function(){
                   function(e){ }
                 );
                 iterateChildLis(childUl,lvl+1);
-
+              }
+              var dataId=li.attr('data-id');
+              if(dataId){
+                if(data_ids!=undefined){
+                  if(data_ids.hasOwnProperty(dataId)){
+                    data_ids[dataId](li);
+                  }
+                }
               }
             });
           };
