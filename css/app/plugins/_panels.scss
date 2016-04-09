@@ -1,0 +1,9 @@
+.init_panels{
+  position:relative;
+
+  .panel_column,
+  .panel_row{position:absolute;left:0;top:0;width:100%;height:100%;}
+
+  .panel_column{}
+  .panel_row{}
+}

@@ -2,6 +2,10 @@ $f-size:14px;
 $f-size-smaller:12px;
 $f-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;
 
+/*heights*/
+$h-topnav: ($f-size * 2);
+$h-projectfile: ($f-size-smaller * 2);
+
 /*dark colors*/
 $c-dark0: #191C22;
 $c-dark1: #242A30;

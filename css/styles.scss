@@ -1,8 +1,10 @@
 @import "app/var";
 @import "app/row";
+@import "app/extend";
 @import "app/mixins";
 
 @import "app/plugins/nav_dropdown";
+@import "app/plugins/panels";
 
 @import "app/base";
 @import "app/topnav";

@@ -1,2 +1,20 @@
 body{font-family:$f-family;font-size:$f-size;padding:0;margin:0;}
 #app_data{display:none;}
+
+#frontend-ui{
+  position:fixed;left:0;top:0;width:100%;height:100%;
+
+  #project_file{@extend .dark_panel0;white-space:nowrap;overflow:hidden;font-size:$f-size-smaller;cursor:default;line-height:$h-projectfile;text-align:center;position:absolute;top:$h-topnav;left:0;width:100%;}
+
+  #workspace{
+    position:absolute;left:0;top:($h-topnav + $h-projectfile);right:0;bottom:0;margin:auto;
+
+    #main_panels{
+      position:absolute;left:0;top:0;bottom:0;right:0;margin:auto;
+
+      #main_panel_left{}
+      #main_panel_center{}
+      #main_panel_right{}
+    }
+  }
+}

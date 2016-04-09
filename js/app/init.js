@@ -40,6 +40,11 @@ jQuery(document).ready(function(){
       }
     }
   });
-
+  //workspace panels
+  workspacePanels.init({
+    wrap:'#frontend-ui #workspace #main_panels:first',
+    panels_type:'columns',
+    panels:'#main_panel_left, #main_panel_center, #main_panel_right'
+  });
 
 });
