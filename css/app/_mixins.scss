@@ -33,13 +33,13 @@ Usage:
   }
 
 */
-@mixin wbreak($bp){
+@mixin xbreak($bp){
     @media screen and (max-width: $bp) {
       @content;
     }
 }
 
-@mixin hbreak($bp){
+@mixin ybreak($bp){
     @media screen and (max-height: $bp) {
       @content;
     }

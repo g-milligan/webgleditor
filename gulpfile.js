@@ -27,8 +27,8 @@ var jsFiles={
     './js/vendor/codemirror/addon/show-hint.js'
   ],
   './dist/js/app.js':[
-    './js/app/test1.js',
-    './js/app/test2.js'
+    './js/app/init.js',
+    './js/app/plugins/nav_dropdown.js'
   ]
 };
 
