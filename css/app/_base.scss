@@ -12,9 +12,9 @@ body{font-family:$f-family;font-size:$f-size;padding:0;margin:0;}
     #main_panels{
       position:absolute;left:0;top:0;bottom:0;right:0;margin:auto;
 
-      #main_panel_left{}
-      #main_panel_center{}
-      #main_panel_right{}
+      #main_panel_left{@extend .dark_panel1;border-right:solid 1px $c-dark0;}
+      #main_panel_center{@extend .dark_panel2;border-left:solid 1px $c-dark0;border-right:solid 1px $c-dark0;}
+      #main_panel_right{@extend .dark_panel1;border-left:solid 1px $c-dark0;}
     }
   }
 }
