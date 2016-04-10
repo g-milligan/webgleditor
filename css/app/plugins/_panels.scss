@@ -4,8 +4,7 @@
   .panel_column,
   .panel_row{position:absolute;left:0;top:0;width:100%;height:100%;}
 
-  .panel_drag_handle{position:absolute;background-color:transparent;}
-  .panel_drag_handle.drag_panel{background-color:$c-highlight0;} 
+  .panel_drag_handle{position:absolute;background-color:transparent;z-index:9999;}
 
   .panel_column{
     .panel_drag_handle{
@@ -26,3 +25,11 @@
   }
 
 }
+
+body.drag_panel{
+  @extend .noselect;
+
+  &.panel_column{cursor:col-resize;}
+  &.panel_row{cursor:row-resize;}
+}
+body > .panel_drag_handle.drag_panel{background-color:$c-highlight0;z-index:9999;}

@@ -43,8 +43,20 @@ var workspacePanels=(function(){
               handle.addClass('drag_panel');
               panel.addClass('drag_panel');
               wrap.addClass('drag_panel');
-              document['dragging_panel']={dragging:true, wrap:wrap, panel:panel, handle:handle};
-              //*** set inline fixed position for the handle
+              handle.css({width:handle.width()+'px',height:handle.height()+'px',
+                left:handle.offset().left+'px',top:handle.offset().top+'px',position:'fixed',
+                right:'auto',bottom:'auto'});
+              var bodyEl=jQuery('body:first');
+              bodyEl.addClass('drag_panel');
+              bodyEl.append(handle);
+              var size_type='height', pos_type='top';
+              if(panel.hasClass('panel_column')){
+                size_type='width'; pos_type='left'; bodyEl.addClass('panel_column');
+              }else{
+                bodyEl.addClass('panel_row');
+              }
+              document['dragging_panel']={dragging:true, wrap:wrap, panel:panel, handle:handle,
+                size_type:size_type, pos_type:pos_type};
             };
             if(p!==0){
               jQuery(this).append('<div class="panel_drag_handle before"></div>');
@@ -69,6 +81,10 @@ var workspacePanels=(function(){
                   var wrap=document['dragging_panel']['wrap'];
                   var panel=document['dragging_panel']['panel'];
                   var handle=document['dragging_panel']['handle'];
+
+                  var size_type=document['dragging_panel']['size_type'];
+                  var pos_type=document['dragging_panel']['pos_type'];
+
                   var handleStopDrag=function(posType, sizeType){
                     var panelNum=parseInt(panel.attr('data-panel'));
                     var panelIndex=panelNum-1;
@@ -95,9 +111,18 @@ var workspacePanels=(function(){
                   }else if(panel.hasClass('panel_row')){
                     handleStopDrag('top', 'height');
                   }
+                  //reset the handle move
+                  var bodyEl=jQuery('body:first');
+                  bodyEl.removeClass('drag_panel').removeClass('panel_column').removeClass('panel_row');
                   wrap.removeClass('drag_panel');
                   panel.removeClass('drag_panel');
                   handle.removeClass('drag_panel');
+                  if(handle.hasClass('before')){
+                    panel.prepend(handle);
+                  }else{
+                    panel.append(handle);
+                  }
+                  handle.removeAttr('style');
                 }
               }
             };
@@ -107,12 +132,12 @@ var workspacePanels=(function(){
                   var wrap=document['dragging_panel']['wrap'];
                   var panel=document['dragging_panel']['panel'];
                   var handle=document['dragging_panel']['handle'];
-                  var this_pos={x:e['pageX'],y:e['pageY']};
-                  if(panel.hasClass('panel_column')){
 
-                  }else if(panel.hasClass('panel_row')){
+                  var size_type=document['dragging_panel']['size_type'];
+                  var pos_type=document['dragging_panel']['pos_type'];
 
-                  }
+                  var this_pos={left:e['pageX'],top:e['pageY']};
+                  handle.css(pos_type,this_pos[pos_type]+'px');
                 }
               }
             };
