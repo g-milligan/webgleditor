@@ -71,7 +71,7 @@ var workspacePanels=(function(){
           });
 
 
-
+          //if this panels plugin has not already been initialized
           if(!document.hasOwnProperty('init_panels')){
             document['init_panels']=true;
             var stopDrag=function(e){
@@ -81,36 +81,68 @@ var workspacePanels=(function(){
                   var wrap=document['dragging_panel']['wrap'];
                   var panel=document['dragging_panel']['panel'];
                   var handle=document['dragging_panel']['handle'];
-
                   var size_type=document['dragging_panel']['size_type'];
                   var pos_type=document['dragging_panel']['pos_type'];
-
-                  var handleStopDrag=function(posType, sizeType){
-                    var panelNum=parseInt(panel.attr('data-panel'));
-                    var panelIndex=panelNum-1;
-                    var adjacentPanel;
-                    if(handle.hasClass('before')){
-                      adjacentPanel=jQuery(wrap[0]['panels_data']['panels_el'][panelIndex-1]);
-                    }else{
-                      adjacentPanel=jQuery(wrap[0]['panels_data']['panels_el'][panelIndex+1]);
-                    }
-                    var adjacentPanelNum=parseInt(adjacentPanel.attr('data-panel'));
-                    //if adjacentPanel is before panel
-                    if(adjacentPanelNum<panelNum){
-
-                    }else{
-                      //panel is before adjacentPanel
-
-                    }
-
-
-
-                  };
-                  if(panel.hasClass('panel_column')){
-                    handleStopDrag('left', 'width');
-                  }else if(panel.hasClass('panel_row')){
-                    handleStopDrag('top', 'height');
+                  var panelNum=parseInt(panel.attr('data-panel'));
+                  var panelIndex=panelNum-1;
+                  var adjacentPanel;
+                  if(handle.hasClass('before')){
+                    adjacentPanel=jQuery(wrap[0]['panels_data']['panels_el'][panelIndex-1]);
+                  }else{
+                    adjacentPanel=jQuery(wrap[0]['panels_data']['panels_el'][panelIndex+1]);
                   }
+                  var adjacentPanelNum=parseInt(adjacentPanel.attr('data-panel'));
+                  var panel1, panel2;
+                  //if adjacentPanel is before panel
+                  if(adjacentPanelNum<panelNum){
+                    panel1=adjacentPanel; panel2=panel;
+                  }else{ //panel is before adjacentPanel
+                    panel1=panel; panel2=adjacentPanel;
+                  }
+                  //function that calculates new size/position of 2 adjacent panels
+                  var newSizePercent1, newSizePercent2, newPosPercent2;
+                  var calculateNewSizePos=function(panelSize1, panelSize2, before1, before2, wrapSize){
+                    var handlePos=parseFloat(handle.css(pos_type));
+                    var after1=before1+panelSize1;
+                    var after2=before2+panelSize2;
+                    var oldSizePercent2=parseFloat(panel2[0].style[size_type]);
+                    var oldPosPercent2=parseFloat(panel2[0].style[pos_type]);
+                    //if the handle is over the panel1
+                    if(before1<=handlePos && handlePos<=after1){
+                      var reducedBy1=after1-handlePos;
+                      var newSize1=panelSize1-reducedBy1;
+                      var newSize2=panelSize2+reducedBy1;
+                      newSizePercent1=newSize1 / wrapSize * 100;
+                      newSizePercent2=newSize2 / wrapSize * 100;
+                      newPosPercent2=oldPosPercent2-(newSizePercent2-oldSizePercent2);
+                    //if the handle is over the panel2
+                    }else if(before2<=handlePos && handlePos<=after2){
+                      var increaseBy1=handlePos-after1;
+                      var newSize1=panelSize1+increaseBy1;
+                      var newSize2=panelSize2-increaseBy1;
+                      newSizePercent1=newSize1 / wrapSize * 100;
+                      newSizePercent2=newSize2 / wrapSize * 100;
+                      newPosPercent2=oldPosPercent2+(oldSizePercent2-newSizePercent2);
+                    }
+                  };
+                  //use different size/positions depending on columns vs. rows
+                  if(pos_type==='top'){
+                    calculateNewSizePos(
+                      panel1.outerHeight(), panel2.outerHeight(),
+                      panel1.offset().top, panel2.offset().top,
+                      wrap.outerHeight()
+                    );
+                  }else if(pos_type==='left'){
+                    calculateNewSizePos(
+                      panel1.outerWidth(), panel2.outerWidth(),
+                      panel1.offset().left, panel2.offset().left,
+                      wrap.outerWidth()
+                    );
+                  }
+                  //finally, set the new panel sizes and position
+                  panel1.css(size_type,newSizePercent1+'%');
+                  panel2.css(size_type,newSizePercent2+'%');
+                  panel2.css(pos_type,newPosPercent2+'%');
                   //reset the handle move
                   var bodyEl=jQuery('body:first');
                   bodyEl.removeClass('drag_panel').removeClass('panel_column').removeClass('panel_row');
