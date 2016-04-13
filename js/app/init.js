@@ -44,8 +44,21 @@ jQuery(document).ready(function(){
   workspacePanels.init({
     wrap:'#frontend-ui #workspace #main_panels:first',
     panels_type:'columns',
-    start_size_percents:[25, 50, 25],
-    panels:'#main_panel_left, #main_panel_center, #main_panel_right'
+    panels:[
+      {
+        selector:'#main_panel_left',
+        start_size_percent:25
+      },
+      {
+        selector:'#main_panel_center',
+        start_size_percent:50
+      },
+      {
+        selector:'#main_panel_right',
+        start_size_percent:25
+      }
+    ]
+
   });
 
 });

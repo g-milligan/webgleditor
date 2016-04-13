@@ -2,41 +2,73 @@ var workspacePanels=(function(){
   return{
     init:function(args){
       var retInit={status:'ok'}; var self=this;
-      var getArg=function(name,defaultVal){
-          var ret;if(args.hasOwnProperty(name)){ ret=args[name]; retInit[name]=ret; }
-          else{ ret=defaultVal; } return ret;
+      var getArg=function(name,defaultVal,json){
+          var ret;
+          if(json==undefined){
+            if(args.hasOwnProperty(name)){ ret=args[name]; retInit[name]=ret; }
+            else{
+              ret=defaultVal;
+              args[name]=ret;
+            }
+          }else{
+            if(json.hasOwnProperty(name)){ ret=json[name]; json[name]=ret; }
+            else{
+              ret=defaultVal;
+              json[name]=ret;
+            }
+          } return ret;
       };
-      var getArgEl=function(selType,parent){
-        var sel=getArg(selType); var el;
+      var getArgEl=function(selType,parent,json){
+        var sel=getArg(selType,undefined,json); var el;
         if(sel!=undefined){
           if(parent==undefined){ el=jQuery(sel); }
           else{ el=parent.find(sel); }
-          if(el.length>0){ retInit[selType+'_el']=el; }
+          if(el.length>0){
+            if(json==undefined){
+              retInit[selType+'_el']=el;
+            }else{
+              json[selType+'_el']=el;
+            }
+          }
         } return el;
       };
       var wrapEl=getArgEl('wrap');
       if(wrapEl!=undefined && wrapEl.length>0){
         wrapEl.addClass('init_panels');
         wrapEl.attr('data-panels', jQuery('.init_panels').length+'');
-        var panels=getArgEl('panels',wrapEl);
+        //default value for 'panels'
+        var defaultPanels=[];
+        if(!args.hasOwnProperty('panels')){
+          var defaultSize=100 / wrapEl.children().length;
+          wrapEl.children().each(function(c){
+            defaultPanels.push({selector:'> *:eq('+c+')',start_size_percent:defaultSize});
+          });
+        }
+        //get all of the panel elements that actually exist
+        var panels_type=getArg('panels_type','columns');
+        var panels_json=getArg('panels',defaultPanels);
+        if(!retInit.hasOwnProperty('panels')){ retInit['panels']=panels_json; }
+        for(var p=0;p<panels_json.length;p++){
+          var panel=panels_json[p]; var panelEl=getArgEl('selector',wrapEl,panels_json[p]);
+          if(panelEl!=undefined && panelEl.length>0){
+            switch(panels_type){
+              case 'columns': panelEl.addClass('panel_column'); break;
+              case 'rows': panelEl.addClass('panel_row'); break;
+            }
+            panel['selector_el']=panelEl;
+          }
+        }
+        var panels=wrapEl.find('.panel_column, .panel_row');
         if(panels.length>0){
-          var panels_type=getArg('panels_type','columns');
-          var defaultStartSizes=[]; var defaultSize=100/panels.length;
-          for(var d=0;d<panels.length;d++){
-            defaultStartSizes.push(defaultSize);
-          }
-          var start_size_percents=getArg('start_size_percents',defaultStartSizes);
           wrapEl[0]['panels_data']=retInit;
-          switch(panels_type){
-            case 'columns': panels.addClass('panel_column'); break;
-            case 'rows': panels.addClass('panel_row'); break;
-          }
+          //init panel mouse down drag events and initial widths
           var currentPos=0, panelsCount=panels.length;
           panels.each(function(p){
+            var panelEl=jQuery(this); var panelJson=panels_json[p];
             var sizeType='width', posType='left'; if(panels_type==='rows'){ sizeType='height'; posType='top'; }
-            jQuery(this).css(sizeType,start_size_percents[p]+'%').css(posType, currentPos+'%');
-            currentPos+=start_size_percents[p];
-            jQuery(this).attr('data-panel', (p+1)+'');
+            panelEl.css(sizeType,panelJson['start_size_percent']+'%').css(posType, currentPos+'%');
+            currentPos+=panelJson['start_size_percent'];
+            panelEl.attr('data-panel', (p+1)+'');
             var handleMouseDownHandle=function(e,handle){
               var panel=handle.parents('[data-panel]:first');
               var wrap=panel.parents('.init_panels:first');
@@ -59,17 +91,16 @@ var workspacePanels=(function(){
                 size_type:size_type, pos_type:pos_type};
             };
             if(p!==0){
-              jQuery(this).append('<div class="panel_drag_handle before"></div>');
-              var dragHandleBefore=jQuery(this).children('.panel_drag_handle.before:last');
+              panelEl.append('<div class="panel_drag_handle before"></div>');
+              var dragHandleBefore=panelEl.children('.panel_drag_handle.before:last');
               dragHandleBefore.mousedown(function(e){ handleMouseDownHandle(e,jQuery(this)); });
             }
             if(p+1<panelsCount){
-              jQuery(this).append('<div class="panel_drag_handle after"></div>');
-              var dragHandleAfter=jQuery(this).children('.panel_drag_handle.after:last');
+              panelEl.append('<div class="panel_drag_handle after"></div>');
+              var dragHandleAfter=panelEl.children('.panel_drag_handle.after:last');
               dragHandleAfter.mousedown(function(e){ handleMouseDownHandle(e,jQuery(this)); });
             }
           });
-
 
           //if this panels plugin has not already been initialized
           if(!document.hasOwnProperty('init_panels')){
@@ -87,9 +118,9 @@ var workspacePanels=(function(){
                   var panelIndex=panelNum-1;
                   var adjacentPanel;
                   if(handle.hasClass('before')){
-                    adjacentPanel=jQuery(wrap[0]['panels_data']['panels_el'][panelIndex-1]);
+                    adjacentPanel=wrap[0]['panels_data']['panels'][panelIndex-1]['selector_el'];
                   }else{
-                    adjacentPanel=jQuery(wrap[0]['panels_data']['panels_el'][panelIndex+1]);
+                    adjacentPanel=wrap[0]['panels_data']['panels'][panelIndex+1]['selector_el'];
                   }
                   var adjacentPanelNum=parseInt(adjacentPanel.attr('data-panel'));
                   var panel1, panel2;
@@ -101,28 +132,37 @@ var workspacePanels=(function(){
                   }
                   //function that calculates new size/position of 2 adjacent panels
                   var newSizePercent1, newSizePercent2, newPosPercent2;
+                  var roundIt=function(it){
+                    it=parseFloat(it)
+                    return Math.round(it);
+                  };
                   var calculateNewSizePos=function(panelSize1, panelSize2, before1, before2, wrapSize){
-                    var handlePos=parseFloat(handle.css(pos_type));
+                    var handlePos=roundIt(handle.css(pos_type));
                     var after1=before1+panelSize1;
                     var after2=before2+panelSize2;
-                    var oldSizePercent2=parseFloat(panel2[0].style[size_type]);
-                    var oldPosPercent2=parseFloat(panel2[0].style[pos_type]);
+                    var oldSizePercent1=roundIt(panel1[0].style[size_type]);
+                    var oldSizePercent2=roundIt(panel2[0].style[size_type]);
+                    var oldPosPercent2=roundIt(panel2[0].style[pos_type]);
                     //if the handle is over the panel1
                     if(before1<=handlePos && handlePos<=after1){
                       var reducedBy1=after1-handlePos;
                       var newSize1=panelSize1-reducedBy1;
-                      var newSize2=panelSize2+reducedBy1;
-                      newSizePercent1=newSize1 / wrapSize * 100;
-                      newSizePercent2=newSize2 / wrapSize * 100;
-                      newPosPercent2=oldPosPercent2-(newSizePercent2-oldSizePercent2);
+
+                      newSizePercent1=roundIt(newSize1 / wrapSize * 100);
+
+                      var sizePercentRemoved1=oldSizePercent1-newSizePercent1;
+                      newSizePercent2=oldSizePercent2+sizePercentRemoved1;
+                      newPosPercent2=oldPosPercent2-sizePercentRemoved1;
                     //if the handle is over the panel2
                     }else if(before2<=handlePos && handlePos<=after2){
                       var increaseBy1=handlePos-after1;
                       var newSize1=panelSize1+increaseBy1;
-                      var newSize2=panelSize2-increaseBy1;
-                      newSizePercent1=newSize1 / wrapSize * 100;
-                      newSizePercent2=newSize2 / wrapSize * 100;
-                      newPosPercent2=oldPosPercent2+(oldSizePercent2-newSizePercent2);
+
+                      newSizePercent1=roundIt(newSize1 / wrapSize * 100);
+
+                      var sizePercentAdded1=newSizePercent1-oldSizePercent1;
+                      newSizePercent2=oldSizePercent2-sizePercentAdded1;
+                      newPosPercent2=oldPosPercent2+sizePercentAdded1;
                     }
                   };
                   //use different size/positions depending on columns vs. rows
