@@ -146,6 +146,30 @@ var workspacePanels=(function(){
           panels.each(function(p){
             var panelEl=jQuery(this); var panelJson=panels_json[p];
             if(!panelJson.hasOwnProperty('min_resize_px')){ panelJson['min_resize_px']=0; }
+            var toggleBtns=function(btnTypes,clickFunc){
+              for(var t=0;t<btnTypes.length;t++){
+                var btnType=btnTypes[t];
+                if(panelJson.hasOwnProperty('btn_toggle_'+btnType)){
+                  var btn;
+                  switch(btnType){
+                    case 'prev': if(p>0){
+                      btn=panelEl.find(panelJson['btn_toggle_prev']); btn.addClass('btn_toggle_prev'); } break;
+                    case 'next': if(p+1<panelsCount){
+                      btn=panelEl.find(panelJson['btn_toggle_next']); btn.addClass('btn_toggle_next'); } break;
+                  }
+                  if(btn!=undefined && btn.length>0){
+                    panelJson['btn_toggle_'+btnType+'_el']=btn;
+                    btn[0]['on_click_toggle_type']=btnType;
+                    btn.click(function(e){
+                      clickFunc(e,jQuery(this),jQuery(this)[0]['on_click_toggle_type']);
+                    });
+                  }
+                }
+              }
+            };
+            toggleBtns(['prev','next'],function(e,btn,btnType){
+              var test='';
+            });
             panelEl[0]['panel_data']=panelJson;
             var sizeType='width', posType='left'; if(panels_type==='rows'){ sizeType='height'; posType='top'; }
             panelEl.css(sizeType,panelJson['start_size_percent']+'%').css(posType, currentPos+'%');
@@ -292,9 +316,11 @@ var workspacePanels=(function(){
                   }
 
                   if(newPos<prev_boundary){
-                    newPos=prev_boundary;
+                    newPos=prev_boundary; handle.addClass('drag_limit_prev');
                   }else if(next_boundary<newPos){
-                    newPos=next_boundary;
+                    newPos=next_boundary; handle.addClass('drag_limit_next');
+                  }else{
+                    handle.removeClass('drag_limit_prev').removeClass('drag_limit_next');
                   }
 
                   handle.css(pos_type,newPos+'px');

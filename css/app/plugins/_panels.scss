@@ -32,4 +32,9 @@ body.drag_panel{
   &.panel_column{cursor:col-resize;}
   &.panel_row{cursor:row-resize;}
 }
-body > .panel_drag_handle.drag_panel{background-color:$c-highlight0;z-index:9999;}
+body > .panel_drag_handle.drag_panel{
+  background-color:$c-highlight0;z-index:9999;box-sizing:border-box;-moz-box-sizing:border-box;
+
+  &.drag_limit_prev,
+  &.drag_limit_next{opacity:.4;}
+}

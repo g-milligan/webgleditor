@@ -1,4 +1,11 @@
 jQuery(document).ready(function(){
+  //add svg images
+  svg.append('panel_toggle',
+    [
+      '#frontend-ui #main_panel_center .panel_ctls .btn_toggle_prev:first',
+      '#frontend-ui #main_panel_center .panel_ctls .btn_toggle_next:first'
+    ]
+  );
   //main top navigation
   navDropdown.init({
     top_ul:'#topnav > ul:first',
@@ -46,17 +53,19 @@ jQuery(document).ready(function(){
     panels_type:'columns',
     panels:[
       {
-        selector:'#main_panel_left',
+        selector:'#main_panel_left:first',
         start_size_percent:25,
         min_resize_px:80
       },
       {
-        selector:'#main_panel_center',
+        selector:'#main_panel_center:first',
         start_size_percent:50,
-        min_resize_px:300
+        min_resize_px:300,
+        btn_toggle_prev:'.panel_ctls .btn_toggle_prev:first',
+        btn_toggle_next:'.panel_ctls .btn_toggle_next:first'
       },
       {
-        selector:'#main_panel_right',
+        selector:'#main_panel_right:first',
         start_size_percent:25,
         min_resize_px:80
       }

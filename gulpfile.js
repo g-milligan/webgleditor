@@ -28,6 +28,7 @@ var jsFiles={
   ],
   './dist/js/app.js':[
     './js/app/init.js',
+    './js/app/svg.js',
     './js/app/plugins/nav_dropdown.js',
     './js/app/plugins/panels.js'
   ]
