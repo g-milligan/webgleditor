@@ -47,15 +47,18 @@ jQuery(document).ready(function(){
     panels:[
       {
         selector:'#main_panel_left',
-        start_size_percent:25
+        start_size_percent:25,
+        min_resize_px:80
       },
       {
         selector:'#main_panel_center',
-        start_size_percent:50
+        start_size_percent:50,
+        min_resize_px:300
       },
       {
         selector:'#main_panel_right',
-        start_size_percent:25
+        start_size_percent:25,
+        min_resize_px:80
       }
     ]
 

@@ -41,7 +41,7 @@ var workspacePanels=(function(){
         if(!args.hasOwnProperty('panels')){
           var defaultSize=100 / wrapEl.children().length;
           wrapEl.children().each(function(c){
-            defaultPanels.push({selector:'> *:eq('+c+')',start_size_percent:defaultSize});
+            defaultPanels.push({selector:'> *:eq('+c+')',start_size_percent:defaultSize,min_resize_px:0});
           });
         }
         //get all of the panel elements that actually exist
@@ -60,11 +60,93 @@ var workspacePanels=(function(){
         }
         var panels=wrapEl.find('.panel_column, .panel_row');
         if(panels.length>0){
+          //function to get a panel that comes BEFORE pnl2
+          var getPrevPanel=function(w,pnl2){
+            var pnl1; var pnl2Num=parseInt(pnl2.attr('data-panel'));
+            if(pnl2Num>1){
+              var pnl2Index=pnl2Num-1;
+              pnl1=w[0]['panels_data']['panels'][pnl2Index-1]['selector_el'];
+            } return pnl1;
+          };
+          //function to get a panel that comes AFTER pnl1
+          var getNextPanel=function(w,pnl1){
+            var pnl2; var pnl1Num=parseInt(pnl1.attr('data-panel'));
+            var pnl1Index=pnl1Num-1;
+            if(pnl1Index<w[0]['panels_data']['panels'].length){
+              pnl2=w[0]['panels_data']['panels'][pnl1Index+1]['selector_el'];
+            } return pnl2;
+          };
+          //get the two panels that will change size, given the drag panel
+          var getPanelPair=function(w,dragPnl,hndl){
+            var panelNum=parseInt(dragPnl.attr('data-panel'));
+            var panelIndex=panelNum-1;
+            var adjacentPanel;
+            if(hndl.hasClass('before')){
+              adjacentPanel=w[0]['panels_data']['panels'][panelIndex-1]['selector_el'];
+            }else{
+              adjacentPanel=w[0]['panels_data']['panels'][panelIndex+1]['selector_el'];
+            }
+            var adjacentPanelNum=parseInt(adjacentPanel.attr('data-panel'));
+            var panel1, panel2;
+            //if adjacentPanel is before dragPnl
+            if(adjacentPanelNum<panelNum){
+              panel1=adjacentPanel; panel2=dragPnl;
+            }else{ //dragPnl is before adjacentPanel
+              panel1=dragPnl; panel2=adjacentPanel;
+            }
+            return {panel1:panel1,panel2:panel2};
+          };
+          //function to get the before boundary
+          var getPrevBoundary=function(w,pnl2){
+            var offsetBound;
+            var pnl1=getPrevPanel(w,pnl2);
+            if(pnl2.hasClass('panel_column')){
+              if(pnl1==undefined){
+                offsetBound=w.offset().left;
+              }else{
+                offsetBound=pnl1.offset().left;
+              }
+            }else if(pnl2.hasClass('panel_row')){
+              if(pnl1==undefined){
+                offsetBound=w.offset().top;
+              }else{
+                offsetBound=pnl1.offset().top;
+              }
+            }
+            if(offsetBound!=undefined){
+              offsetBound+=pnl1[0]['panel_data']['min_resize_px'];
+            }
+            return offsetBound;
+          };
+          //function to get the next boundary
+          var getNextBoundary=function(w,pnl1){
+            var offsetBound;
+            var pnl2=getNextPanel(w,pnl1);
+            if(pnl1.hasClass('panel_column')){
+              if(pnl2==undefined){
+                offsetBound=w.offset().left + w.innerWidth();
+              }else{
+                offsetBound=pnl2.offset().left + pnl2.innerWidth();
+              }
+            }else if(pnl1.hasClass('panel_row')){
+              if(pnl2==undefined){
+                offsetBound=w.offset().top + w.innerHeight();
+              }else{
+                offsetBound=pnl2.offset().top + pnl2.innerHeight();
+              }
+            }
+            if(offsetBound!=undefined){
+              offsetBound-=pnl2[0]['panel_data']['min_resize_px'];
+            }
+            return offsetBound;
+          };
           wrapEl[0]['panels_data']=retInit;
           //init panel mouse down drag events and initial widths
           var currentPos=0, panelsCount=panels.length;
           panels.each(function(p){
             var panelEl=jQuery(this); var panelJson=panels_json[p];
+            if(!panelJson.hasOwnProperty('min_resize_px')){ panelJson['min_resize_px']=0; }
+            panelEl[0]['panel_data']=panelJson;
             var sizeType='width', posType='left'; if(panels_type==='rows'){ sizeType='height'; posType='top'; }
             panelEl.css(sizeType,panelJson['start_size_percent']+'%').css(posType, currentPos+'%');
             currentPos+=panelJson['start_size_percent'];
@@ -87,8 +169,13 @@ var workspacePanels=(function(){
               }else{
                 bodyEl.addClass('panel_row');
               }
+              var pnls1and2=getPanelPair(wrap,panel,handle);
+              var panel1=pnls1and2['panel1']; var panel2=pnls1and2['panel2'];
+              var prev_boundary=getPrevBoundary(wrap,panel2);
+              var next_boundary=getNextBoundary(wrap,panel1);
               document['dragging_panel']={dragging:true, wrap:wrap, panel:panel, handle:handle,
-                size_type:size_type, pos_type:pos_type};
+                size_type:size_type, pos_type:pos_type,
+                prev_boundary:prev_boundary, next_boundary:next_boundary, panel1:panel1, panel2:panel2};
             };
             if(p!==0){
               panelEl.append('<div class="panel_drag_handle before"></div>');
@@ -114,22 +201,8 @@ var workspacePanels=(function(){
                   var handle=document['dragging_panel']['handle'];
                   var size_type=document['dragging_panel']['size_type'];
                   var pos_type=document['dragging_panel']['pos_type'];
-                  var panelNum=parseInt(panel.attr('data-panel'));
-                  var panelIndex=panelNum-1;
-                  var adjacentPanel;
-                  if(handle.hasClass('before')){
-                    adjacentPanel=wrap[0]['panels_data']['panels'][panelIndex-1]['selector_el'];
-                  }else{
-                    adjacentPanel=wrap[0]['panels_data']['panels'][panelIndex+1]['selector_el'];
-                  }
-                  var adjacentPanelNum=parseInt(adjacentPanel.attr('data-panel'));
-                  var panel1, panel2;
-                  //if adjacentPanel is before panel
-                  if(adjacentPanelNum<panelNum){
-                    panel1=adjacentPanel; panel2=panel;
-                  }else{ //panel is before adjacentPanel
-                    panel1=panel; panel2=adjacentPanel;
-                  }
+                  var panel1=document['dragging_panel']['panel1'];
+                  var panel2=document['dragging_panel']['panel2'];
                   //function that calculates new size/position of 2 adjacent panels
                   var newSizePercent1, newSizePercent2, newPosPercent2;
                   var roundIt=function(it){
@@ -205,11 +278,26 @@ var workspacePanels=(function(){
                   var panel=document['dragging_panel']['panel'];
                   var handle=document['dragging_panel']['handle'];
 
+                  var next_boundary=document['dragging_panel']['next_boundary'];
+                  var prev_boundary=document['dragging_panel']['prev_boundary'];
+
                   var size_type=document['dragging_panel']['size_type'];
                   var pos_type=document['dragging_panel']['pos_type'];
 
-                  var this_pos={left:e['pageX'],top:e['pageY']};
-                  handle.css(pos_type,this_pos[pos_type]+'px');
+                  var newPos;
+                  if(pos_type==='left'){
+                    newPos=e['pageX'];
+                  }else{
+                    newPos=e['pageY'];
+                  }
+
+                  if(newPos<prev_boundary){
+                    newPos=prev_boundary;
+                  }else if(next_boundary<newPos){
+                    newPos=next_boundary;
+                  }
+
+                  handle.css(pos_type,newPos+'px');
                 }
               }
             };
