@@ -60,6 +60,10 @@ var workspacePanels=(function(){
         }
         var panels=wrapEl.find('.panel_column, .panel_row');
         if(panels.length>0){
+          var roundIt=function(it){
+            it=parseFloat(it)
+            return Math.round(it);
+          };
           //function to get a panel that comes BEFORE pnl2
           var getPrevPanel=function(w,pnl2){
             var pnl1; var pnl2Num=parseInt(pnl2.attr('data-panel'));
@@ -77,11 +81,11 @@ var workspacePanels=(function(){
             } return pnl2;
           };
           //get the two panels that will change size, given the drag panel
-          var getPanelPair=function(w,dragPnl,hndl){
+          var getPanelPair=function(w,dragPnl,beforeOrAfter){
             var panelNum=parseInt(dragPnl.attr('data-panel'));
             var panelIndex=panelNum-1;
             var adjacentPanel;
-            if(hndl.hasClass('before')){
+            if(beforeOrAfter==='before'){
               adjacentPanel=w[0]['panels_data']['panels'][panelIndex-1]['selector_el'];
             }else{
               adjacentPanel=w[0]['panels_data']['panels'][panelIndex+1]['selector_el'];
@@ -168,7 +172,52 @@ var workspacePanels=(function(){
               }
             };
             toggleBtns(['prev','next'],function(e,btn,btnType){
-              var test='';
+              var pnl=btn.parents('[data-panel]:first');
+              var w=pnl.parents('.init_panels:first');
+              var beforeOrAfter;
+              if(btn.hasClass('btn_toggle_next')){
+                beforeOrAfter='after';
+              }else{
+                beforeOrAfter='before';
+              }
+              var pnls1and2=getPanelPair(w,pnl,beforeOrAfter); var panel1=pnls1and2['panel1']; var panel2=pnls1and2['panel2'];
+              var sizeType, posType;
+              if(pnl.hasClass('panel_column')){
+                sizeType='width'; posType='left';
+              }else{
+                sizeType='height'; posType='top';
+              }
+              if(!btn.hasClass('toggle_off')){
+                btn.addClass('toggle_off');
+                var shrinkPnl, growPnl;
+                if(beforeOrAfter==='before'){
+                  shrinkPnl=panel1; growPnl=panel2;
+                }else{
+                  shrinkPnl=panel2; growPnl=panel1;
+                }
+                //*** store the previous restore sizes
+                var hideSize=roundIt(shrinkPnl[0].style[sizeType]);
+                var prevGrowPnlSize=roundIt(growPnl[0].style[sizeType]);
+                var prevPanel2Pos=roundIt(panel2[0].style[posType]);
+                var newPanel2Pos;
+                if(beforeOrAfter==='before'){
+                  newPanel2Pos=prevPanel2Pos-hideSize;
+                }else{
+                  newPanel2Pos=prevPanel2Pos+hideSize;
+                }
+                panel2.css(posType, newPanel2Pos+'%');
+                growPnl.css(sizeType,(hideSize+prevGrowPnlSize)+'%');
+                shrinkPnl.css(sizeType,'0%');
+              }else{
+                btn.removeClass('toggle_off');
+
+                //***
+
+
+
+
+
+              }
             });
             panelEl[0]['panel_data']=panelJson;
             var sizeType='width', posType='left'; if(panels_type==='rows'){ sizeType='height'; posType='top'; }
@@ -193,7 +242,8 @@ var workspacePanels=(function(){
               }else{
                 bodyEl.addClass('panel_row');
               }
-              var pnls1and2=getPanelPair(wrap,panel,handle);
+              var beforeOrAfter='before'; if(handle.hasClass('after')){ beforeOrAfter='after' }
+              var pnls1and2=getPanelPair(wrap,panel,beforeOrAfter);
               var panel1=pnls1and2['panel1']; var panel2=pnls1and2['panel2'];
               var prev_boundary=getPrevBoundary(wrap,panel2);
               var next_boundary=getNextBoundary(wrap,panel1);
@@ -229,10 +279,6 @@ var workspacePanels=(function(){
                   var panel2=document['dragging_panel']['panel2'];
                   //function that calculates new size/position of 2 adjacent panels
                   var newSizePercent1, newSizePercent2, newPosPercent2;
-                  var roundIt=function(it){
-                    it=parseFloat(it)
-                    return Math.round(it);
-                  };
                   var calculateNewSizePos=function(panelSize1, panelSize2, before1, before2, wrapSize){
                     var handlePos=roundIt(handle.css(pos_type));
                     var after1=before1+panelSize1;
