@@ -198,9 +198,17 @@ var workspacePanels=(function(){
                   var btn;
                   switch(btnType){
                     case 'prev': if(p>0){
-                      btn=panelEl.find(panelJson['btn_toggle_prev']); btn.addClass('btn_toggle_prev'); } break;
+                      var toggleJson=panelJson['btn_toggle_prev'];
+                      if(toggleJson.hasOwnProperty('selector')){
+                        btn=panelEl.find(toggleJson['selector']); btn.addClass('btn_toggle_prev');
+                      }
+                    } break;
                     case 'next': if(p+1<panelsCount){
-                      btn=panelEl.find(panelJson['btn_toggle_next']); btn.addClass('btn_toggle_next'); } break;
+                      var toggleJson=panelJson['btn_toggle_next'];
+                      if(toggleJson.hasOwnProperty('selector')){
+                        btn=panelEl.find(toggleJson['selector']); btn.addClass('btn_toggle_next');
+                      }
+                    } break;
                   }
                   if(btn!=undefined && btn.length>0){
                     panelJson['btn_toggle_'+btnType+'_el']=btn;
@@ -208,6 +216,12 @@ var workspacePanels=(function(){
                     btn.click(function(e){
                       clickFunc(e,jQuery(this),jQuery(this)[0]['on_click_toggle_type']);
                     });
+                    if(panelJson['btn_toggle_'+btnType].hasOwnProperty('click_onload')){
+                      var doClick=panelJson['btn_toggle_'+btnType]['click_onload'];
+                      if(doClick){
+                        btn.addClass('click_onload'); //toggle panel off on load
+                      }
+                    }
                   }
                 }
               }
@@ -305,6 +319,7 @@ var workspacePanels=(function(){
               dragHandleAfter.mousedown(function(e){ handleMouseDownHandle(e,jQuery(this)); });
             }
           });
+          wrapEl.find('.btn_toggle_prev.click_onload,.btn_toggle_next.click_onload').click();
 
           //if this panels plugin has not already been initialized
           if(!document.hasOwnProperty('init_panels')){

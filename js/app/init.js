@@ -61,8 +61,13 @@ jQuery(document).ready(function(){
         selector:'#main_panel_center:first',
         start_size_percent:50,
         min_resize_px:300,
-        btn_toggle_prev:'.panel_ctls .btn_toggle_prev:first',
-        btn_toggle_next:'.panel_ctls .btn_toggle_next:first'
+        btn_toggle_prev:{
+          selector:'.panel_ctls .btn_toggle_prev:first'
+        },
+        btn_toggle_next:{
+          selector:'.panel_ctls .btn_toggle_next:first',
+          click_onload:true
+        }
       },
       {
         selector:'#main_panel_right:first',
