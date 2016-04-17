@@ -24,6 +24,11 @@
     }
   }
 
+  .panel_column.toggle_off,
+  .panel_row.toggle_off{
+    display:none;
+  }
+
 }
 
 body.drag_panel{

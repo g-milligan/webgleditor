@@ -144,6 +144,23 @@ var workspacePanels=(function(){
             }
             return offsetBound;
           };
+          var restorePanelOpen=function(btn){
+            var didRestore=false;
+            if(btn.hasClass('toggle_off')){
+              btn.removeClass('toggle_off');
+              var size1=btn[0]['restore_toggle_panel_data']['panel1']['size'];
+              var pos1=btn[0]['restore_toggle_panel_data']['panel1']['pos'];
+              var size2=btn[0]['restore_toggle_panel_data']['panel2']['size'];
+              var pos2=btn[0]['restore_toggle_panel_data']['panel2']['pos'];
+              var pnl1=btn[0]['restore_toggle_panel_data']['panel1']['panel'];
+              var pnl2=btn[0]['restore_toggle_panel_data']['panel2']['panel'];
+              var sizeType=btn[0]['restore_toggle_panel_data']['size_type'];
+              var posType=btn[0]['restore_toggle_panel_data']['pos_type'];
+              pnl1.css(sizeType,size1+'%').removeClass('toggle_off');
+              pnl2.css(sizeType,size2+'%').css(posType,pos2+'%').removeClass('toggle_off');
+              didRestore=true;
+            }
+          };
           wrapEl[0]['panels_data']=retInit;
           //init panel mouse down drag events and initial widths
           var currentPos=0, panelsCount=panels.length;
@@ -195,7 +212,15 @@ var workspacePanels=(function(){
                 }else{
                   shrinkPnl=panel2; growPnl=panel1;
                 }
-                //*** store the previous restore sizes
+                //store the previous restore sizes
+                btn[0]['restore_toggle_panel_data']={panel1:{},panel2:{},size_type:sizeType,pos_type:posType};
+                btn[0]['restore_toggle_panel_data']['panel1']['size']=roundIt(panel1[0].style[sizeType]);
+                btn[0]['restore_toggle_panel_data']['panel1']['pos']=roundIt(panel1[0].style[posType]);
+                btn[0]['restore_toggle_panel_data']['panel2']['size']=roundIt(panel2[0].style[sizeType]);
+                btn[0]['restore_toggle_panel_data']['panel2']['pos']=roundIt(panel2[0].style[posType]);
+                btn[0]['restore_toggle_panel_data']['panel1']['panel']=panel1;
+                btn[0]['restore_toggle_panel_data']['panel2']['panel']=panel2;
+                //calculate new positions and sizes
                 var hideSize=roundIt(shrinkPnl[0].style[sizeType]);
                 var prevGrowPnlSize=roundIt(growPnl[0].style[sizeType]);
                 var prevPanel2Pos=roundIt(panel2[0].style[posType]);
@@ -208,15 +233,9 @@ var workspacePanels=(function(){
                 panel2.css(posType, newPanel2Pos+'%');
                 growPnl.css(sizeType,(hideSize+prevGrowPnlSize)+'%');
                 shrinkPnl.css(sizeType,'0%');
+                shrinkPnl.addClass('toggle_off');
               }else{
-                btn.removeClass('toggle_off');
-
-                //***
-
-
-
-
-
+                restorePanelOpen(btn);
               }
             });
             panelEl[0]['panel_data']=panelJson;
