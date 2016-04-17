@@ -148,16 +148,40 @@ var workspacePanels=(function(){
             var didRestore=false;
             if(btn.hasClass('toggle_off')){
               btn.removeClass('toggle_off');
-              var size1=btn[0]['restore_toggle_panel_data']['panel1']['size'];
-              var pos1=btn[0]['restore_toggle_panel_data']['panel1']['pos'];
-              var size2=btn[0]['restore_toggle_panel_data']['panel2']['size'];
-              var pos2=btn[0]['restore_toggle_panel_data']['panel2']['pos'];
-              var pnl1=btn[0]['restore_toggle_panel_data']['panel1']['panel'];
-              var pnl2=btn[0]['restore_toggle_panel_data']['panel2']['panel'];
+
               var sizeType=btn[0]['restore_toggle_panel_data']['size_type'];
               var posType=btn[0]['restore_toggle_panel_data']['pos_type'];
-              pnl1.css(sizeType,size1+'%').removeClass('toggle_off');
-              pnl2.css(sizeType,size2+'%').css(posType,pos2+'%').removeClass('toggle_off');
+              var shrinkData=btn[0]['restore_toggle_panel_data']['shrink_panel'];
+              var growData=btn[0]['restore_toggle_panel_data']['grow_panel'];
+              var shrinkPnl=shrinkData['el'];
+              var growPnl=growData['el'];
+
+              shrinkPnl.removeClass('toggle_off');
+              delete shrinkPnl[0]['toggle_off_button'];
+              shrinkPnl.css(sizeType,shrinkData['restore_size']+'%');
+
+              if(shrinkData.hasOwnProperty('restore_pos')){
+                shrinkPnl.css(posType,shrinkData['restore_pos']+'%');
+              }else{
+                growPnl.css(posType,growData['restore_pos']+'%');
+              }
+
+              var growPnlNum=growPnl.attr('data-panel');
+              var sizeTotal=0;
+
+              var w=btn.parents('.init_panels:first');
+              for(var i=0;i<w[0]['panels_data']['panels'].length;i++){
+                var panelData=w[0]['panels_data']['panels'][i];
+                var pnl=panelData['selector_el'];
+                var pnlNum=pnl.attr('data-panel');
+                if(pnlNum!==growPnlNum){
+                  sizeTotal+=roundIt(pnl[0].style[sizeType]);
+                }
+              }
+
+              var restoreGrowSize=100-sizeTotal;
+              growPnl.css(sizeType,restoreGrowSize+'%');
+
               didRestore=true;
             }
           };
@@ -206,22 +230,23 @@ var workspacePanels=(function(){
               }
               if(!btn.hasClass('toggle_off')){
                 btn.addClass('toggle_off');
+                btn[0]['restore_toggle_panel_data']={shrink_panel:{},grow_panel:{},size_type:sizeType,pos_type:posType};
                 var shrinkPnl, growPnl;
                 if(beforeOrAfter==='before'){
                   shrinkPnl=panel1; growPnl=panel2;
+                  btn[0]['restore_toggle_panel_data']['grow_panel']['restore_pos']=roundIt(growPnl[0].style[posType]);
                 }else{
                   shrinkPnl=panel2; growPnl=panel1;
+                  btn[0]['restore_toggle_panel_data']['shrink_panel']['restore_pos']=roundIt(shrinkPnl[0].style[posType]);
                 }
-                //store the previous restore sizes
-                btn[0]['restore_toggle_panel_data']={panel1:{},panel2:{},size_type:sizeType,pos_type:posType};
-                btn[0]['restore_toggle_panel_data']['panel1']['size']=roundIt(panel1[0].style[sizeType]);
-                btn[0]['restore_toggle_panel_data']['panel1']['pos']=roundIt(panel1[0].style[posType]);
-                btn[0]['restore_toggle_panel_data']['panel2']['size']=roundIt(panel2[0].style[sizeType]);
-                btn[0]['restore_toggle_panel_data']['panel2']['pos']=roundIt(panel2[0].style[posType]);
-                btn[0]['restore_toggle_panel_data']['panel1']['panel']=panel1;
-                btn[0]['restore_toggle_panel_data']['panel2']['panel']=panel2;
-                //calculate new positions and sizes
+                shrinkPnl[0]['toggle_off_button']=btn;
+                btn[0]['restore_toggle_panel_data']['shrink_panel']['el']=shrinkPnl;
+                btn[0]['restore_toggle_panel_data']['grow_panel']['el']=growPnl;
+
                 var hideSize=roundIt(shrinkPnl[0].style[sizeType]);
+                btn[0]['restore_toggle_panel_data']['shrink_panel']['restore_size']=hideSize;
+
+                //calculate new positions and sizes
                 var prevGrowPnlSize=roundIt(growPnl[0].style[sizeType]);
                 var prevPanel2Pos=roundIt(panel2[0].style[posType]);
                 var newPanel2Pos;
@@ -232,8 +257,7 @@ var workspacePanels=(function(){
                 }
                 panel2.css(posType, newPanel2Pos+'%');
                 growPnl.css(sizeType,(hideSize+prevGrowPnlSize)+'%');
-                shrinkPnl.css(sizeType,'0%');
-                shrinkPnl.addClass('toggle_off');
+                shrinkPnl.css(sizeType,'0%').addClass('toggle_off');
               }else{
                 restorePanelOpen(btn);
               }
@@ -315,6 +339,12 @@ var workspacePanels=(function(){
                       var sizePercentRemoved1=oldSizePercent1-newSizePercent1;
                       newSizePercent2=oldSizePercent2+sizePercentRemoved1;
                       newPosPercent2=oldPosPercent2-sizePercentRemoved1;
+
+                      if(panel2[0].hasOwnProperty('toggle_off_button')){
+                        if(panel2[0]['toggle_off_button']!=undefined){
+                          panel2[0]['toggle_off_button'].click();
+                        }
+                      }
                     //if the handle is over the panel2
                     }else if(before2<=handlePos && handlePos<=after2){
                       var increaseBy1=handlePos-after1;
@@ -325,6 +355,12 @@ var workspacePanels=(function(){
                       var sizePercentAdded1=newSizePercent1-oldSizePercent1;
                       newSizePercent2=oldSizePercent2-sizePercentAdded1;
                       newPosPercent2=oldPosPercent2+sizePercentAdded1;
+
+                      if(panel1[0].hasOwnProperty('toggle_off_button')){
+                        if(panel1[0]['toggle_off_button']!=undefined){
+                          panel1[0]['toggle_off_button'].click();
+                        }
+                      }
                     }
                   };
                   //use different size/positions depending on columns vs. rows
