@@ -75,7 +75,36 @@ jQuery(document).ready(function(){
         min_resize_px:80
       }
     ]
-
+  });
+  //filenav menu
+  var filenavData=filenav.init({
+    wrap:'#file-system-nav:first',
+    paths:[
+      {
+        path:'index.html', type:'f', svg:'xml_file_inverse'
+      },
+      {
+        path:'vendor/js/glMatrix.min.js'
+      },
+      {
+        path:'js/webgl-utils.js'
+      },
+      {
+        path:'css/styles.css'
+      },
+      {
+        path:'html/canvas.html'
+      },
+      {
+        path:'shaders/shader.vert'
+      },
+      {
+        path:'shaders/shader.frag'
+      },
+      {
+        path:'js/main.js'
+      }
+    ]
   });
 
 });
