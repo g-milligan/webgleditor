@@ -1,6 +1,29 @@
 var filenav=(function(){
   return{
+    openItem:function(li){
+      //if this is a parent dir
+      if(li.children('ul:last').length>0){
+        li.addClass('open');
+      }
+    },
+    closeItem:function(li){
+      //if this is a parent dir
+      if(li.children('ul:last').length>0){
+        li.removeClass('open');
+      }
+    },
+    toggleItem:function(li){
+      //if this is a parent dir
+      if(li.children('ul:last').length>0){
+        if(li.hasClass('open')){
+          this['closeItem'](li);
+        }else{
+          this['openItem'](li);
+        }
+      }
+    },
     addPaths:function(wrap,paths){
+      var self=this;
       if(wrap!=undefined && wrap.length>0){
         //if filenav not already init
         var filenav=wrap.children('.init_filenav_wrap');
@@ -22,18 +45,83 @@ var filenav=(function(){
               }else if(data['type']==='d'){
                 data['svg']=defaultDirSvg;
               }
-            }
+            }else{ data['svg']=svg['get'](data['svg']); }
+            var setToggleopen=function(li){
+              var toggle=li.children('span.toggle:first');
+              if(toggle.length<1){
+                li.prepend('<span class="toggle"></span>');
+                toggle=li.children('span.toggle:first');
+                toggle.click(function(){
+                  self['toggleItem'](jQuery(this).parents('li:first'));
+                });
+                var otherTriggers=li.children('.ico:first,.lbl:first');
+                otherTriggers.each(function(){
+                  if(!jQuery(this)[0].hasOwnProperty('init_toggle_open_trigger')
+                  || !jQuery(this)[0]['init_toggle_open_trigger']){
+                    jQuery(this)[0]['init_toggle_open_trigger']=true;
+                    jQuery(this).click(function(){
+                      self['toggleItem'](jQuery(this).parents('li:first'));
+                    });
+                  }
+                });
+              }else{
+                li.prepend(toggle);
+              }
+            };
+            var createDir=function(ul,name,json){
+              if(json==undefined){ json={}; }
+              if(!json.hasOwnProperty('svg')){ json['svg']=defaultDirSvg; }
+              var li=ul.children('li[data-name="'+name+'"][data-type="d"]:first');
+              if(li.length<1){
+                ul.append('<li data-type="d" data-name="'+name+'"><span class="lbl">'+name+'</span></li>');
+                li=ul.children('li[data-name="'+name+'"][data-type="d"]:first');
+                //*** alphabetize folder level
+              }
+              var existingIco=li.children('span.ico:first');
+              if(existingIco.length<1){
+                li.prepend('<span class="ico">'+json['svg']+'</span>');
+              }else{
+                li.prepend(existingIco);
+              }
+              setToggleopen(li);
+              return li;
+            };
+            var createFile=function(ul,name,json){
+              if(json==undefined){ json={}; }
+              if(!json.hasOwnProperty('svg')){ json['svg']=defaultFileSvg; }
+              var li=ul.children('li[data-name="'+name+'"][data-type="f"]:first');
+              if(li.length<1){
+                ul.append('<li data-type="f" data-name="'+name+'"><span class="lbl">'+name+'</span></li>');
+                li=ul.children('li[data-name="'+name+'"][data-type="f"]:first');
+                //*** alphabetize folder level
+              }
+              var existingIco=li.children('span.ico:first');
+              if(existingIco.length<1){
+                li.prepend('<span class="ico">'+json['svg']+'</span>');
+              }
+              return li;
+            };
             var path=data['path'];
             var pathArr=path.split('/');
-
-
-
-
-
-            
-
-
-
+            var ul=rootUl;
+            for(var p=0;p<pathArr.length;p++){
+              var file=pathArr[p];
+              //if last item in path
+              if(p+1===pathArr.length){
+                switch(data['type']){
+                  case 'f': createFile(ul,file,data); break;
+                  case 'd': createDir(ul,file,data); break;
+                }
+              }else{
+                //not last item in the path
+                var li=createDir(ul,file);
+                var nextUl=li.children('ul:last');
+                if(nextUl.length<1){
+                  li.append('<ul></ul>');
+                  ul=li.children('ul:last');
+                }else{ ul=nextUl; }
+              }
+            }
           }
         };
         if(!Array.isArray(paths)){
