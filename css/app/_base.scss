@@ -1,6 +1,14 @@
 body{font-family:$f-family;font-size:$f-size;padding:0;margin:0;}
 #app_data{display:none;}
 
+::-webkit-scrollbar{background-color:transparent;width:8px;height:8px;}
+::-webkit-scrollbar-button{display:none;}
+::-webkit-scrollbar-track{background-color:transparent;}
+::-webkit-scrollbar-track-piece {}
+::-webkit-scrollbar-thumb{background-color:$c-faded-txt;border-radius:5px;}
+::-webkit-scrollbar-corner{background-color:transparent;}
+::-webkit-resizer{display:none;}
+
 #frontend-ui{
   position:fixed;left:0;top:0;width:100%;height:100%;
 
@@ -28,5 +36,11 @@ body{font-family:$f-family;font-size:$f-size;padding:0;margin:0;}
 
       .btn_toggle_prev:not(.toggle_off),.btn_toggle_next.toggle_off{@include rotate(180deg);}
     }
+
+    .panel_content{
+      overflow:hidden;max-width:100%;max-height:100%;height:100%;box-sizing:border-box;
+    }
+    .panel_content:hover{overflow:auto;}
   }
+
 }
