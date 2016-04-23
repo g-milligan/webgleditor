@@ -1,5 +1,5 @@
 #topnav{
-  @extend .dark_panel0;font-size:$f-size;line-height:$h-topnav;padding:0 ($f-size / 2);border-bottom:solid 1px $c-dark0;
+  @extend .dark_panel0;font-size:$f-size;line-height:$h-topnav;padding:0 ($f-size / 2);border-bottom:solid 1px $c-dark0;z-index:999;
 
   span{@include transition(color .1s linear, background-color .1s linear);}
 
@@ -23,7 +23,7 @@
       }
 
       ul{
-        background-color:$c-medium-txt;color:$c-dark0;min-width:222px;
+        background-color:$c-medium-txt;color:$c-dark0;min-width:222px;z-index:999;
 
         li{display:block;width:100%;box-sizing:border-box;-moz-box-sizing:border-box;}
 
