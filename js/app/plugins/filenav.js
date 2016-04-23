@@ -1,10 +1,56 @@
 var filenav=(function(){
   return{
-    focusNext:function(wrap){
-
+    getNextItem:function(li,prevOrNext,skipClosed){
+      if(skipClosed==undefined){ skipClosed=false; }
+      var wrap=li.parents('.init_filenav_wrap:first');
+      li.addClass('current');
+      var lis;
+      if(!skipClosed){
+        lis=wrap.find('li');
+      }else{
+        lis=wrap.find('> ul > li, li.open > ul > li');
+      }
+      lis.each(function(i){
+        jQuery(this).attr('data-index',i+'');
+      });
+      var currentIndex=parseInt(lis.filter('.current').attr('data-index'));
+      var nextIndex=currentIndex;
+      switch(prevOrNext){
+        case 'prev':
+          nextIndex--; if(nextIndex<0){ nextIndex=lis.length-1; }
+          break;
+        case 'next':
+          nextIndex++; if(nextIndex>=lis.length){ nextIndex=0; }
+          break;
+      }
+      var liNext=lis.filter('[data-index="'+nextIndex+'"]');
+      lis.removeAttr('data-index');
+      li.removeClass('current');
+      return liNext;
     },
-    focusPrev:function(wrap){
-
+    focusNext:function(wrap,skipClosed){
+      if(skipClosed==undefined){ skipClosed=false; }
+      var currentLi=wrap.find('li.focus:first');
+      if(currentLi.length<1){
+        currentLi=wrap.find('li:first');
+        this['setFocus'](currentLi);
+      }else{
+        var li=this['getNextItem'](currentLi,'next',skipClosed);
+        this['setFocus'](li);
+        if(!skipClosed){ this['openItem'](li); }
+      }
+    },
+    focusPrev:function(wrap,skipClosed){
+      if(skipClosed==undefined){ skipClosed=false; }
+      var currentLi=wrap.find('li.focus:first');
+      if(currentLi.length<1){
+        currentLi=wrap.find('li:first');
+        this['setFocus'](currentLi);
+      }else{
+        var li=this['getNextItem'](currentLi,'prev',skipClosed);
+        this['setFocus'](li);
+        if(!skipClosed){ this['openItem'](li); }
+      }
     },
     clearFocus:function(wrap){
       wrap.removeClass('focus');
@@ -16,15 +62,20 @@ var filenav=(function(){
       li.addClass('focus');
     },
     openItem:function(li){
+      var self=this;
       //if this is a parent dir
       if(li.children('ul:last').length>0){
         li.addClass('open');
       }
+      li.parents('li').each(function(){
+        self['openItem'](jQuery(this));
+      });
     },
     closeItem:function(li){
       //if this is a parent dir
       if(li.children('ul:last').length>0){
         li.removeClass('open');
+        li.find('li.open').removeClass('open');
       }
     },
     toggleItem:function(li){
@@ -61,9 +112,17 @@ var filenav=(function(){
               switch(e.keyCode){
                 case 38: //key up
                   e.preventDefault(); e.stopPropagation();
-                  self['focusPrev'](nav);
+                  self['focusPrev'](nav,true);
                   break;
                 case 40: //key down
+                  e.preventDefault(); e.stopPropagation();
+                  self['focusNext'](nav,true);
+                  break;
+                case 37: //key left
+                  e.preventDefault(); e.stopPropagation();
+                  self['focusPrev'](nav);
+                  break;
+                case 39: //key right
                   e.preventDefault(); e.stopPropagation();
                   self['focusNext'](nav);
                   break;
