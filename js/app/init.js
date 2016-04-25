@@ -1,4 +1,5 @@
 jQuery(document).ready(function(){
+  var ad=appdata.get();
   //add svg images
   svg.append('panel_toggle',
     [

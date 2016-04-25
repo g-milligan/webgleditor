@@ -32,7 +32,8 @@ var jsFiles={
     './js/app/plugins/nav_dropdown.js',
     './js/app/plugins/panels.js',
     './js/app/plugins/filestore.js',
-    './js/app/plugins/filenav.js'
+    './js/app/plugins/filenav.js',
+    './js/app/appdata.js',
   ]
 };
 
