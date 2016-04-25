@@ -31,6 +31,7 @@ var jsFiles={
     './js/app/svg.js',
     './js/app/plugins/nav_dropdown.js',
     './js/app/plugins/panels.js',
+    './js/app/plugins/filestore.js',
     './js/app/plugins/filenav.js'
   ]
 };
