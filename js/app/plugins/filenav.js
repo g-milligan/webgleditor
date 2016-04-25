@@ -1,5 +1,29 @@
 var filenav=(function(){
   return{
+    sortItems:function(ul,doRecursive){
+      var self=this;
+      if(doRecursive==undefined){ doRecursive=false; }
+      var sortItemTypes=function(types){
+        for(var t=0;t<types.length;t++){
+          var type=types[t]; var abcNames=[];
+          ul.children('li[data-type="'+type+'"]').each(function(){
+            abcNames.push(jQuery(this).attr('data-name'));
+          });
+          abcNames.sort();
+          for(var a=0;a<abcNames.length;a++){
+            var li=ul.children('li[data-type="'+type+'"][data-name="'+abcNames[a]+'"]:first');
+            ul.append(li);
+            if(doRecursive){
+              var childUl=li.children('ul:last');
+              if(childUl.length>0){
+                self['sortItems'](childUl,doRecursive);
+              }
+            }
+          }
+        }
+      };
+      sortItemTypes(['d','f']);
+    },
     getNextItem:function(li,prevOrNext,skipClosed){
       if(skipClosed==undefined){ skipClosed=false; }
       var wrap=li.parents('.init_filenav_wrap:first');
@@ -37,7 +61,7 @@ var filenav=(function(){
       }else{
         var li=this['getNextItem'](currentLi,'next',skipClosed);
         this['setFocus'](li);
-        if(!skipClosed){ this['openItem'](li); }
+        if(!skipClosed){ this['openItem'](li,false); }
       }
     },
     focusPrev:function(wrap,skipClosed){
@@ -49,7 +73,7 @@ var filenav=(function(){
       }else{
         var li=this['getNextItem'](currentLi,'prev',skipClosed);
         this['setFocus'](li);
-        if(!skipClosed){ this['openItem'](li); }
+        if(!skipClosed){ this['openItem'](li,false); }
       }
     },
     clearFocus:function(wrap){
@@ -61,15 +85,30 @@ var filenav=(function(){
       wrap.find('li.focus').removeClass('focus');
       li.addClass('focus');
     },
-    openItem:function(li){
-      var self=this;
-      //if this is a parent dir
-      if(li.children('ul:last').length>0){
-        li.addClass('open');
+    openItem:function(li,fireEvent){
+      if(fireEvent==undefined){ fireEvent=true; }
+      if(!li.hasClass('open')){
+        var self=this;
+        //if this is a parent dir
+        if(li.children('ul:last').length>0){
+          li.addClass('open');
+        }
+        var path=li.attr('data-name');
+        li.parents('li').each(function(){
+          self['openItem'](jQuery(this),false);
+          var test='';
+          path=jQuery(this).attr('data-name')+'/'+path;
+        });
+        if(fireEvent){
+          var wrap=li.parents('.init_filenav_wrap:first');
+          var parent=wrap.parent();
+          if(parent[0]['filenav_data'].hasOwnProperty('onopen')){
+            li[0]['filenav_data']['path']=path;
+            li[0]['filenav_data']['type']=li.attr('data-type');
+            parent[0]['filenav_data']['onopen'](li,li[0]['filenav_data']);
+          }
+        }
       }
-      li.parents('li').each(function(){
-        self['openItem'](jQuery(this));
-      });
     },
     closeItem:function(li){
       //if this is a parent dir
@@ -79,13 +118,13 @@ var filenav=(function(){
       }
     },
     toggleItem:function(li){
-      //if this is a parent dir
-      if(li.children('ul:last').length>0){
-        if(li.hasClass('open')){
+      if(li.hasClass('open')){
+        //if this is a parent dir
+        if(li.children('ul:last').length>0){
           this['closeItem'](li);
-        }else{
-          this['openItem'](li);
         }
+      }else{
+        this['openItem'](li);
       }
     },
     addPaths:function(wrap,paths){
@@ -153,6 +192,7 @@ var filenav=(function(){
         var defaultDirSvg=svg['get']('dir');
         //function to add a single path
         var addPath=function(data){
+          var newPathAdded=false;
           if(data.hasOwnProperty('path')){
             if(!data.hasOwnProperty('type')){ data['type']='f'; }
             if(!data.hasOwnProperty('svg')){
@@ -193,9 +233,10 @@ var filenav=(function(){
               if(!json.hasOwnProperty('svg')){ json['svg']=defaultDirSvg; }
               var li=ul.children('li[data-name="'+name+'"][data-type="d"]:first');
               if(li.length<1){
+                newPathAdded=true;
                 ul.append('<li data-type="d" data-name="'+name+'"><span class="lbl">'+name+'</span></li>');
                 li=ul.children('li[data-name="'+name+'"][data-type="d"]:first');
-                //*** alphabetize folder level
+                li[0]['filenav_data']=json;
               }
               var existingIco=li.children('span.ico:first');
               if(existingIco.length<1){
@@ -211,9 +252,10 @@ var filenav=(function(){
               if(!json.hasOwnProperty('svg')){ json['svg']=defaultFileSvg; }
               var li=ul.children('li[data-name="'+name+'"][data-type="f"]:first');
               if(li.length<1){
+                newPathAdded=true;
                 ul.append('<li data-type="f" data-name="'+name+'"><span class="lbl">'+name+'</span></li>');
                 li=ul.children('li[data-name="'+name+'"][data-type="f"]:first');
-                //*** alphabetize folder level
+                li[0]['filenav_data']=json;
               }
               var existingIco=li.children('span.ico:first');
               if(existingIco.length<1){
@@ -243,12 +285,20 @@ var filenav=(function(){
                 }else{ ul=nextUl; }
               }
             }
-          }
+          } return newPathAdded;
         };
+        var newPathAdded=false;
         if(!Array.isArray(paths)){
-          addPath(paths);
+          newPathAdded=addPath(paths);
         }else{
-          for(var p=0;p<paths.length;p++){ addPath(paths[p]); }
+          for(var p=0;p<paths.length;p++){
+            if(addPath(paths[p])){
+              newPathAdded=true;
+            }
+          }
+        }
+        if(newPathAdded){
+          self['sortItems'](rootUl,true);
         }
       }
     },
@@ -266,9 +316,12 @@ var filenav=(function(){
       };
       var wrapEl=getArgEl('wrap');
       if(wrapEl!=undefined && wrapEl.length>0){
+        var onopen=getArg('onopen');
         var paths=getArg('paths');
+        wrapEl[0]['filenav_data']=retInit;
         self['addPaths'](wrapEl, paths);
       }else{ retInit['status']='error, cannot find wrap element'; }
+      return retInit;
     }
   };
 }());

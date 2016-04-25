@@ -79,6 +79,11 @@ jQuery(document).ready(function(){
   //filenav menu
   var filenavData=filenav.init({
     wrap:'#file-system-nav:first',
+    onopen:function(li,data){
+      if(data['type']==='f'){
+        console.log('open: '+data['path']);
+      }
+    },
     paths:[
       {
         path:'index.html', type:'f', svg:'xml_file_inverse'
