@@ -10,20 +10,9 @@ var appdata=(function(){
         value:function(self, el, extraArgs){
           var ret;
           var getTemplateData=function(whichTemplate){
-            var templateIndex=parseInt(whichTemplate), div, data;
-            if(isNaN(templateIndex)){
-              if(typeof whichTemplate==='string'){
-                div=el.children('[data-template="'+whichTemplate+'"]:first');
-              }else if(whichTemplate.attr('data-template')){
-                div=whichTemplate;
-              }
-            }else{
-              div=el.children().eq(templateIndex);
-            }
-            if(div.length>0){
-              templateIndex=div.index();
-              data={index:templateIndex, el:div, key:div.attr('data-template')};
-              div.children('[data-key]').each(function(){
+            var data=self['getWhichElData']('data-template', whichTemplate, el);
+            if(data!=undefined){
+              data['el'].children('[data-key]').each(function(){
                 data[jQuery(this).attr('data-key')]=self['getCommentContent'](jQuery(this).html());
               });
             }
@@ -31,7 +20,7 @@ var appdata=(function(){
           };
           if(extraArgs==undefined){
             ret=[];
-            el.children('[data-template]').each(function(){
+            el.children().each(function(){
               var data=getTemplateData(jQuery(this).attr('data-template'));
               if(data!=undefined){ ret.push(data); }
             });
@@ -44,7 +33,26 @@ var appdata=(function(){
       data_file_settings:{
         value:function(self, el, extraArgs){
           var ret;
+          var getSettingData=function(whichSetting){
+            var data=self['getWhichElData']('data-key', whichSetting, el);
+            if(data!=undefined){
+              data['el'].children().each(function(){
+                var settingKey=jQuery(this).attr('data-key');
+                data[settingKey]={};
 
+              });
+            }
+            return data;
+          };
+          if(extraArgs==undefined){
+            ret=[];
+            el.children('[data-key]').each(function(){
+              var data=getSettingData(jQuery(this).attr('data-key'));
+              if(data!=undefined){ ret.push(data); }
+            });
+          }else{
+            ret=getSettingData(extraArgs);
+          }
           return ret;
         }
       },
@@ -55,6 +63,23 @@ var appdata=(function(){
           return ret;
         }
       }
+    },
+    getWhichElData:function(attrName, which, parent){
+      var index=parseInt(which), div, data;
+      if(isNaN(index)){
+        if(typeof which==='string'){
+          div=parent.children('['+attrName+'="'+which+'"]:first');
+        }else if(which.attr(attrName)){
+          div=which;
+        }
+      }else{
+        div=parent.children().eq(index);
+      }
+      if(div.length>0){
+        index=div.index();
+        data={index:index, el:div, key:div.attr(attrName)};
+      }
+      return data;
     },
     getMappedElement:function(id,appDataEl){
       var el, self=this;
