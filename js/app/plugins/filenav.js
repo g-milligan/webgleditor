@@ -96,7 +96,6 @@ var filenav=(function(){
         var path=li.attr('data-name');
         li.parents('li').each(function(){
           self['openItem'](jQuery(this),false);
-          var test='';
           path=jQuery(this).attr('data-name')+'/'+path;
         });
         if(fireEvent){

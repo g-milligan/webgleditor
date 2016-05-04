@@ -1,5 +1,6 @@
 jQuery(document).ready(function(){
-  var ad=appdata.get();
+  //var ad=appdata.get();
+  appdata.getTemplate(jQuery('[data-template="default"]:first'));
   //add svg images
   svg.append('panel_toggle',
     [
