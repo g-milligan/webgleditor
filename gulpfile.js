@@ -34,7 +34,9 @@ var jsFiles={
     './js/app/plugins/filestore.js',
     './js/app/plugins/filenav.js',
     './js/app/appdata.js',
-    './js/app/template_parser.js'
+    './js/app/template_parser.js',
+    './js/app/loadview.js',
+    './js/app/datainterface.js'
   ]
 };
 

@@ -1,4 +1,6 @@
 jQuery(document).ready(function(){
+  //set where the data source is coming from
+  datainterface.init();
   //add svg images
   svg.append('panel_toggle',
     [
@@ -76,6 +78,10 @@ jQuery(document).ready(function(){
       }
     ]
   });
+
+  //load view, side nav items, content text, content view mode
+  loadview.init();
+
   //filenav menu
   var filenavData=filenav.init({
     wrap:'#file-system-nav:first',
