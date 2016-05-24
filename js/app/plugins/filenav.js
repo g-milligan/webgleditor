@@ -130,7 +130,7 @@ var filenav=(function(){
       var self=this;
       if(wrap!=undefined && wrap.length>0){
         //if filenav not already init
-        var filenav=wrap.children('.init_filenav_wrap');
+        var filenav=wrap.children('.init_filenav_wrap'); var openPaths=[], focusPath;
         if(filenav.length<1){
           wrap.append('<div class="init_filenav_wrap"><ul></ul></div>');
           filenav=wrap.children('.init_filenav_wrap');
@@ -244,6 +244,12 @@ var filenav=(function(){
                 li.prepend(existingIco);
               }
               setToggleopen(li);
+              if(json.hasOwnProperty('open')){
+                if(json['open']){ openPaths.push(li); }
+              }
+              if(json.hasOwnProperty('focus')){
+                if(json['focus']){ focusPath=li; }
+              }
               return li;
             };
             var createFile=function(ul,name,json){
@@ -261,6 +267,12 @@ var filenav=(function(){
                 li.prepend('<span class="ico">'+json['svg']+'</span>');
               }
               setToggleopen(li);
+              if(json.hasOwnProperty('open')){
+                if(json['open']){ openPaths.push(li); }
+              }
+              if(json.hasOwnProperty('focus')){
+                if(json['focus']){ focusPath=li; }
+              }
               return li;
             };
             var path=data['path'];
@@ -298,6 +310,14 @@ var filenav=(function(){
         }
         if(newPathAdded){
           self['sortItems'](rootUl,true);
+        }
+        //open all of the paths with open:true
+        for(var p=0;p<openPaths.length;p++){
+          self['openItem'](openPaths[p], true);
+        }
+        //focus the last path that has focus:true
+        if(focusPath!=undefined){
+          self['setFocus'](focusPath);
         }
       }
     },

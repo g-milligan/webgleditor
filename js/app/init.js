@@ -92,7 +92,7 @@ jQuery(document).ready(function(){
     },
     paths:[
       {
-        path:'index.html', type:'f', svg:'xml_file_inverse'
+        path:'index.html', type:'f', svg:'xml_file_inverse', open:true, focus:true
       },
       {
         path:'vendor/js/glMatrix.min.js'
