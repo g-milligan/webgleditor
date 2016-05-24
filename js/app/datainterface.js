@@ -39,7 +39,7 @@ var datainterface=(function(){
       if(srcVal!=undefined){ has=true; }
       return has;
     },
-    load_from_fallback:function(){
+    load_from_fallback:function(){ //when all other memory sources are not available (brand new open)
       var ret={load_from:'fallback'};
       var whichTemplate=appdata.getStartupTemplate();
       var template=appdata.getTemplate(whichTemplate['val']);
@@ -50,7 +50,7 @@ var datainterface=(function(){
       }
       return ret;
     },
-    load_from_files:function(){
+    load_from_files:function(){ //load from real disk file system files
       var ret={load_from:'files'};
 
 
@@ -61,8 +61,20 @@ var datainterface=(function(){
 
       return ret;
     },
-    load_from_browser:function(){
+    load_from_browser:function(){ //load from html5 file system API
       var ret={load_from:'browser'};
+
+
+
+
+      ret=this['load_from_fallback']();
+
+
+
+      return ret;
+    },
+    load_from_memory:function(){ //load from memory (not saved to any other source)
+      var ret={load_from:'memory'};
 
 
 

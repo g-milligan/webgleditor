@@ -82,40 +82,4 @@ jQuery(document).ready(function(){
   //load view, side nav items, content text, content view mode
   loadview.init();
 
-  //filenav menu
-  var filenavData=filenav.init({
-    wrap:'#file-system-nav:first',
-    onopen:function(li,data){
-      if(data['type']==='f'){
-        console.log('open: '+data['path']);
-      }
-    },
-    paths:[
-      {
-        path:'index.html', type:'f', svg:'xml_file_inverse', open:true, focus:true
-      },
-      {
-        path:'vendor/js/glMatrix.min.js'
-      },
-      {
-        path:'js/webgl-utils.js'
-      },
-      {
-        path:'css/styles.css'
-      },
-      {
-        path:'html/canvas.html'
-      },
-      {
-        path:'shaders/shader.vert'
-      },
-      {
-        path:'shaders/shader.frag'
-      },
-      {
-        path:'js/main.js'
-      }
-    ]
-  });
-
 });
