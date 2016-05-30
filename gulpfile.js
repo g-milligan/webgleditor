@@ -36,7 +36,8 @@ var jsFiles={
     './js/app/appdata.js',
     './js/app/template_parser.js',
     './js/app/loadview.js',
-    './js/app/datainterface.js'
+    './js/app/datainterface.js',
+    './js/app/codeminterface.js'
   ]
 };
 

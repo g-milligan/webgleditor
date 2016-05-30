@@ -1,6 +1,8 @@
 var loadview=(function(){
   return{
     init:function(){
+      var self=this;
+      //load the html blob and parse the individual files out of it
       var dataSrc=datainterface['getDataSource']();
       var start_data=datainterface['load_from_'+dataSrc]();
       var filesData=template_parser['getFilesData'](start_data['content']);
@@ -12,13 +14,8 @@ var loadview=(function(){
         wrap:'#file-system-nav:first',
         onopen:function(li,data){
           if(data['type']==='f'){
-            var fullContent=datainterface['load_from_memory']();
-            var path=data['path']; if(path==='index.html'){ path=undefined; }
-            var content=template_parser['getDataFileContent'](fullContent['content'], path);
-
-
-            console.log(content);
-
+            //load the individual file content from the full content blob in memory
+            codeminterface['openFile'](data['path']);
           }
         },
         paths:filesData['objs']
