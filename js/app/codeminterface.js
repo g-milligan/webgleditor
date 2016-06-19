@@ -45,7 +45,17 @@ var codeminterface=(function(){
             //textarea.removeClass('raw');
             textarea[0].parentNode.replaceChild(el, textarea[0]);
           },config);
+
+
+
+
+
           //****
+
+
+
+
+          
         }else{
           fileWrap=undefined;
         }
