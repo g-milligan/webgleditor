@@ -11,8 +11,13 @@
 @import "app/topnav";
 @import "app/filenav";
 
+@import "app/codemirror";
+
 
 
 /*codemirror*/
 @import "vendor/codemirror/codemirror";
+/*@import "vendor/codemirror/theme/pastel-on-dark";
+@import "vendor/codemirror/theme/solarized";*/
+@import "vendor/codemirror/theme/custom_dark"; 
 @import "vendor/codemirror/addon/show-hint";

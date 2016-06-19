@@ -1,0 +1,9 @@
+#frontend-ui #workspace .panel_content{
+  > .content{
+    position:absolute;left:$codemirror_content_pad;top:0;bottom:$codemirror_content_pad;right:$codemirror_content_pad;margin:auto;
+
+    .CodeMirror{
+      width:100%;height:100%;position:absolute;left:0;top:0;bottom:0;right:0;margin:auto;
+    }
+  }
+}

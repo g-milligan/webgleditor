@@ -1,3 +1,5 @@
+$f-size-extra:18px;
+$f-size-bigger:16px;
 $f-size:14px;
 $f-size-smaller:12px;
 $f-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;
@@ -7,6 +9,8 @@ $h-topnav: ($f-size * 2);
 $h-projectfile: ($f-size-smaller * 2);
 $h-panel-ctls: ($f-size * 2);
 $h_filenav_item:($f-size + 10);
+
+$codemirror_content_pad: $f-size;
 
 /*dark colors*/
 $c-dark0: #191C22;
