@@ -24,7 +24,11 @@ var jsFiles={
     './js/vendor/codemirror/mode/xml.js',
     './js/vendor/codemirror/mode/htmlmixed.js',
 
-    './js/vendor/codemirror/addon/show-hint.js'
+    './js/vendor/codemirror/addon/show-hint.js',
+
+    './js/vendor/codemirror/addon/foldcode.js',
+    './js/vendor/codemirror/addon/foldgutter.js',
+    './js/vendor/codemirror/addon/datafile-fold.js'
   ],
   './dist/js/app.js':[
     './js/app/init.js',

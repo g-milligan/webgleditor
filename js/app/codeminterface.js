@@ -1,5 +1,6 @@
 var codeminterface=(function(){
   return{
+    //get the codemirror "mode" assigned to the extension of this file's path
     getFileMode:function(path){
       var ext=this['getExtension'](path); var mode;
       switch(ext){
@@ -7,6 +8,7 @@ var codeminterface=(function(){
       }
       return mode;
     },
+    //get the extension of a file path
     getExtension:function(str){
       var ret='';
       if(str.indexOf('.')!==-1){
@@ -40,14 +42,19 @@ var codeminterface=(function(){
           config['styleActiveLine']=true;
           config['mode']=self['getFileMode'](path);
           config['theme']='custom-dark';
+          if(path==='index.html'){ //allow folding large sections of code in data-file elements
+            config['foldGutter']=true;
+            config['gutters']=['CodeMirror-linenumbers','CodeMirror-foldgutter'];
+          }
           //init the editor textarea
           var myCodeMirror = CodeMirror(function(el) {
             //textarea.removeClass('raw');
             textarea[0].parentNode.replaceChild(el, textarea[0]);
           },config);
 
-
-
+          if(path==='index.html'){ //fold all of the code sections on page load
+            CodeMirror.commands.foldAll(myCodeMirror.doc.cm);
+          }
 
 
           //****
@@ -55,7 +62,7 @@ var codeminterface=(function(){
 
 
 
-          
+
         }else{
           fileWrap=undefined;
         }
