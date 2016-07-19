@@ -60,12 +60,16 @@ var appdata=(function(){
       }
       return ret;
     },
-    getTemplate:function(which, addInserts){
+    getTemplate:function(which, addInserts, addTags){
       var self=this;
       if(addInserts==undefined){addInserts=true;}
-      var inserts;
+      if(addTags==undefined){addTags=true;}
+      var inserts, tags;
       if(addInserts){
         inserts=self['getTemplateInserts']();
+      }
+      if(addTags){
+        tags=self['getDataFileSetting']('data-file-tags');
       }
       var ret, templatesEl=jQuery(templatesSel);
       var templateData=getWhichChild(which, templatesEl, 'data-template');
@@ -85,6 +89,9 @@ var appdata=(function(){
                   }
                 }
               }
+            }
+            if(tags!=undefined){
+              val=template_parser['getContentWithDataFileTags'](val, tags);
             }
           }
           if(ret==undefined){ ret={key:templateData['key']}; }

@@ -20,6 +20,16 @@ var template_parser=(function(){
       });
       return ret;
     },
+    getContentWithDataFileTags:function(content, dataFileTags){
+      var ret=content, self=this;
+      if(dataFileTags==undefined){ dataFileTags=appdata['getDataFileSetting']('data-file-tags'); }
+
+      //*** insert data-file-tags into content
+
+
+
+      return ret;
+    },
     //get the [data-file] elements within the content string
     getDataFileElements:function(content){
       var ret;
