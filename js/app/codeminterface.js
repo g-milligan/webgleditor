@@ -81,7 +81,7 @@ var codeminterface=(function(){
         //open this content if it's not already active
         if(!fileWrap.hasClass('active')){
           var panelContent=fileWrap.parent();
-          panelContent.children('.content.active').removeClass('content');
+          panelContent.children('.content.active').removeClass('active');
           fileWrap.addClass('active');
           ret=fileWrap;
         }

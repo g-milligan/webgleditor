@@ -84,7 +84,7 @@ var appdata=(function(){
                 if(!insert.hasOwnProperty('error')){
                   if(val.indexOf(insert['key'])!==-1){
                     while(val.indexOf(insert['key'])!==-1){
-                      val=val.replace(insert['key'], insert['content']); //*** put the tags around the content
+                      val=val.replace(insert['key'], insert['content']);
                     }
                   }
                 }
@@ -124,17 +124,11 @@ var appdata=(function(){
             ret={};
             settingsData['el'].children('[data-tag]').each(function(){
               var tagName=jQuery(this).attr('data-tag');
-              ret[tagName]={trim:false,before:'',after:''};
+              ret[tagName]={before:'',after:''};
               jQuery(this).children('[data-key]').each(function(){
                 var keyName=jQuery(this).attr('data-key');
                 var val=jQuery(this).html();
                 switch(keyName){
-                  case 'trim':
-                    val=val.trim(); val=val.toLowerCase();
-                    if(val.indexOf('true')===0){
-                      ret[tagName]['trim']=true;
-                    }
-                    break;
                   case 'before':
                     val=replaceAll(val, '&lt;', '<');
                     val=replaceAll(val, '&gt;', '>');

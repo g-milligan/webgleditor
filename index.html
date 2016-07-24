@@ -94,7 +94,7 @@
 
 <body onload="javascript:init();">
 
-<div data-before="" data-after="" data-file="html/canvas.html"><canvas id="canvas">Canvas failed to load</canvas></div>
+<canvas id="canvas">Canvas!</canvas>
 
 <script data-file="shaders/shader.vert" type="x-shader/x-vertex">{{shaderVERT}}</script>
 
@@ -115,30 +115,28 @@
       <div data-key="data-file-tags">
 
         <div data-tag="default">
-          <div data-key="trim">true</div>
+          <div data-key="before">&lt;!--
 
-          <div data-key="before">
-&lt;!--
 </div>
           <div data-key="after">
---&gt;
-</div>
+
+--&gt;</div>
         </div>
         <div data-tag="script">
-          <div data-key="before">
-/*&lt;!--*/
+          <div data-key="before">/*&lt;!--*/
+
 </div>
           <div data-key="after">
-/*--&gt;*/
-</div>
+
+/*--&gt;*/</div>
         </div>
         <div data-tag="style">
-          <div data-key="before">
-/*&lt;!--*/
+          <div data-key="before">/*&lt;!--*/
+
 </div>
           <div data-key="after">
-/*--&gt;*/
-</div>
+
+/*--&gt;*/</div>
         </div>
 
       </div>

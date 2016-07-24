@@ -20,14 +20,70 @@ var template_parser=(function(){
       });
       return ret;
     },
+    //get the before and after strings for a given [data-file] elemen
+    getBeforeAndAfterForElement:function(dataFileEl, dataFileTags){
+      var before='', after='', dataFileTag, tagName=dataFileEl[0].tagName.toLowerCase();
+      if(dataFileTags==undefined){ dataFileTags=appdata['getDataFileSetting']('data-file-tags'); }
+      if(dataFileTags!=undefined){
+        if(dataFileTags.hasOwnProperty('default')){ dataFileTag=dataFileTags['default']; }
+        if(dataFileTags.hasOwnProperty(tagName)){ dataFileTag=dataFileTags[tagName]; }
+        if(dataFileTag!=undefined){
+          //get before/after values from settings
+          if(dataFileTag.hasOwnProperty('before')){ before=dataFileTag['before']; }
+          if(dataFileTag.hasOwnProperty('after')){ after=dataFileTag['after']; }
+          //overwrite before/after settings, with available inline attribute (if any)
+          var beforeAttr=dataFileEl.attr('data-before');
+          var afterAttr=dataFileEl.attr('data-after');
+          var replaceCharsInAttr=function(str){
+            str=str.replace(/\\n/g, "\n");
+            str=str.replace(/\\t/g, "\t");
+            str=str.replace(/&lt;/g, "<");
+            str=str.replace(/&gt;/g, ">");
+            return str;
+          };
+          if(beforeAttr!=undefined){ before=replaceCharsInAttr(beforeAttr); }
+          if(afterAttr!=undefined){ after=replaceCharsInAttr(afterAttr); }
+        }
+      }
+      return {before:before,after:after,tag:dataFileTag};
+    },
+    //pass the full html content and returns the content with the before and after tags inserted
     getContentWithDataFileTags:function(content, dataFileTags){
       var ret=content, self=this;
       if(dataFileTags==undefined){ dataFileTags=appdata['getDataFileSetting']('data-file-tags'); }
-
-      //*** insert data-file-tags into content
-
-
-
+      if(dataFileTags!=undefined){
+        var els=self['getDataFileElements'](content);
+        els.each(function(){
+          var dataFileEl=jQuery(this);
+          var tagName=dataFileEl[0].tagName.toLowerCase();
+          var htmlStart='', htmlContent='', htmlEnd='</'+tagName+'>';
+          htmlContent=dataFileEl.html();
+          var beforeAfter=self['getBeforeAndAfterForElement'](dataFileEl, dataFileTags);
+          var before=beforeAfter['before'], after=beforeAfter['after'];
+          //if already starts with...
+          if(htmlContent.indexOf(before)===0){ before=''; }
+          //if already ends with...
+          if(htmlContent.lastIndexOf(after)===htmlContent.length-after.length){ before=''; }
+          //if there is a before or after to insert around the content...
+          if(before.length>0 || after.length>0){
+            htmlStart=dataFileEl[0].outerHTML;
+            if(dataFileEl[0].attributes.length>0){
+              var lastAttr=dataFileEl[0].attributes[dataFileEl[0].attributes.length-1];
+              var endIndex=htmlStart.indexOf(lastAttr.value)+lastAttr.value.length;
+              var consumeStr=htmlStart.substring(endIndex);
+              endIndex+=consumeStr.indexOf('>')+'>'.length;
+              htmlStart=htmlStart.substring(0, endIndex);
+              htmlStart=htmlStart.substring('<'.length, htmlStart.length-'>'.length);
+              htmlStart=htmlStart.replace(/>/g, "&gt;");
+              htmlStart=htmlStart.replace(/</g, "&lt;");
+              htmlStart='<'+htmlStart+'>';
+            }else{
+              htmlStart=htmlStart.substring(0, htmlStart.indexOf('>')+'>'.length);
+            }
+            ret=ret.replace(htmlStart+htmlContent+htmlEnd, htmlStart+before+htmlContent+after+htmlEnd);
+          }
+        });
+      }
       return ret;
     },
     //get the [data-file] elements within the content string
@@ -48,12 +104,29 @@ var template_parser=(function(){
       return ret;
     },
     //get the inner content of a specific [data-file] element within content
-    getDataFileContent:function(content, path){
-      var ret;
+    getDataFileContent:function(content, path, includeBeforeAfter){
+      var ret, self=this;
+      if(includeBeforeAfter==undefined){ includeBeforeAfter=false; }
       if(path!=undefined){
         var el=this['getDataFileElement'](content, path);
         if(el!=undefined){
           ret=el.html();
+          if(!includeBeforeAfter){
+            var beforeAfter=self['getBeforeAndAfterForElement'](el);
+            var before=beforeAfter['before'], after=beforeAfter['after'];
+            if(before.length>0){
+              //if starts with...
+              if(ret.indexOf(before)===0){
+                ret=ret.substring(before.length);
+              }
+            }
+            if(after.length>0){
+              //if ends with...
+              if(ret.lastIndexOf(after)===ret.length-after.length){
+                ret=ret.substring(0, ret.lastIndexOf(after));
+              }
+            }
+          }
         }
       }else{
         ret=content;
