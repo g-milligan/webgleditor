@@ -1,5 +1,25 @@
 var filenav=(function(){
   return{
+    getItem:function(ul, path){
+      var self=this;
+      var names=path.split('/');
+      var li=ul.children('li[data-name="'+names[0]+'"]:first');
+      if(li.length>0 && names.length>1){
+        for(var n=1;n<names.length;n++){
+          li=li.children('ul:first').children('li[data-name="'+names[n]+'"]:first');
+          if(li.length<1){ break; }
+        }
+      }
+      return li;
+    },
+    getAncestorItems:function(liItem){
+      var ret;
+      if(liItem!=undefined && liItem.length>0){
+        ret=liItem.parents('li[data-name]');
+        ret=jQuery(ret.get().reverse());
+      }
+      return ret;
+    },
     sortItems:function(ul,doRecursive){
       var self=this;
       if(doRecursive==undefined){ doRecursive=false; }

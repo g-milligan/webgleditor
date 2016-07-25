@@ -1,5 +1,18 @@
 var codeminterface=(function(){
   return{
+    //get the file div from the given codemirror instance
+    getDivFromInstance:function(instance){
+      var lineDiv=jQuery(instance.display.lineDiv);
+      var div=lineDiv.parents('[data-file]:first');
+      if(div.length<1){ div=undefined; }
+      return div;
+    },
+    //get the file path from the given codemirror instance
+    getPathFromInstance:function(instance){
+      var path='', div=this['getDivFromInstance'](instance);
+      if(div!=undefined){ path=div.attr('data-file'); }
+      return path;
+    },
     //get the codemirror "mode" assigned to the extension of this file's path
     getFileMode:function(path){
       var ext=this['getExtension'](path); var mode;
@@ -47,16 +60,22 @@ var codeminterface=(function(){
             config['gutters']=['CodeMirror-linenumbers','CodeMirror-foldgutter'];
           }
           //init the editor textarea
-          var myCodeMirror = CodeMirror(function(el) {
-            //textarea.removeClass('raw');
+          var myCodeMirror=CodeMirror(function(el){
             textarea[0].parentNode.replaceChild(el, textarea[0]);
           },config);
-
           if(path==='index.html'){ //fold all of the code sections on page load
             CodeMirror.commands.foldAll(myCodeMirror.doc.cm);
           }
-
-
+          //wire up code mirror events
+          myCodeMirror.on('change',function(instance,object){
+            codemevents['change'](instance,object);
+          });
+          myCodeMirror.on('cursorActivity',function(instance,object){
+            codemevents['cursorActivity'](instance,object);
+          });
+          myCodeMirror.on('beforeChange',function(instance,object){
+            codemevents['beforeChange'](instance,object);
+          });
           //****
 
 

@@ -1,3 +1,19 @@
 #file-system-nav{
   font-family:$f-family;font-size:$f-size;line-height:$h_filenav_item;letter-spacing:2px;
+
+  li.change, li.change-ancestor{
+    > .ico{
+      svg path{fill:$c-highlight0;}
+    }
+    > .lbl{
+      color:$c-highlight0;font-weight:bold;
+    }
+  }
+
+  li.change{
+    > .lbl{
+      &:before{content:"*";}
+    }
+  }
+
 }
