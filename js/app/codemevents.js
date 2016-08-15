@@ -13,6 +13,12 @@ var codemevents=(function(){
       var indexLi=filenav['getItem'](leftNavUl, 'index.html');
       leftNavLi.addClass('change'); indexLi.addClass('change');
       leftNavAncestors.addClass('change-ancestor');
+      var pathDiv=codeminterface['getProjectPathDiv']();
+      var pathDivStr=pathDiv.html();
+      if(pathDivStr===path){
+        pathDiv.addClass('change');
+        pathDiv.append('<span class="asterisk">*</span>');
+      }
     },
     //when mouse cursor position changes
     cursorActivity:function(instance,object){

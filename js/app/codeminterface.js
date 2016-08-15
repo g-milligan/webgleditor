@@ -1,5 +1,15 @@
 var codeminterface=(function(){
   return{
+    //get the div that contains the project path
+    getProjectPathDiv:function(){
+      return jQuery('#project_file:first');
+    },
+    //set the project path as it is shown in the path div
+    setProjectPath:function(newPath){
+      var self=this;
+      var div=self['getProjectPathDiv']();
+      div.html(newPath);
+    },
     //get the file div from the given codemirror instance
     getDivFromInstance:function(instance){
       var lineDiv=jQuery(instance.display.lineDiv);
@@ -17,7 +27,12 @@ var codeminterface=(function(){
     getFileMode:function(path){
       var ext=this['getExtension'](path); var mode;
       switch(ext){
+        case 'css': mode='css'; break;
         case 'html': mode='htmlmixed'; break;
+        case 'js': mode='javascript'; break;
+        case 'xml': mode='xml'; break;
+        case 'vert': mode='clike'; break;
+        case 'frag': mode='clike'; break;
       }
       return mode;
     },
@@ -102,6 +117,17 @@ var codeminterface=(function(){
           var panelContent=fileWrap.parent();
           panelContent.children('.content.active').removeClass('active');
           fileWrap.addClass('active');
+
+          var leftNavUl=jQuery('#file-system-nav .init_filenav_wrap ul:first');
+          var leftNavLi=filenav['getItem'](leftNavUl, strPath);
+          var pathDiv=self['getProjectPathDiv'](); var asterisk='';
+          if(leftNavLi.hasClass('change')){
+            pathDiv.addClass('change'); asterisk='<span class="asterisk">*</span>';
+          }else{
+            pathDiv.removeClass('change');
+          }
+          self['setProjectPath'](strPath+asterisk);
+
           ret=fileWrap;
         }
       }

@@ -23,6 +23,7 @@ var jsFiles={
     './js/vendor/codemirror/mode/css.js',
     './js/vendor/codemirror/mode/xml.js',
     './js/vendor/codemirror/mode/htmlmixed.js',
+    './js/vendor/codemirror/mode/clike.js',
 
     './js/vendor/codemirror/addon/show-hint.js',
 
