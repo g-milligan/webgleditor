@@ -128,6 +128,18 @@ var codeminterface=(function(){
           }
           self['setProjectPath'](strPath+asterisk);
 
+
+
+
+
+
+          //*** update / align content
+
+
+
+
+
+
           ret=fileWrap;
         }
       }
