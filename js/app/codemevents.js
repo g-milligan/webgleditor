@@ -7,7 +7,9 @@ var codemevents=(function(){
       if(path==='index.html'){
 
         //*** track the line numbers that got updated
-
+        var editedText=instance.getRange(object.from, object.to);
+        var changeType=object.origin;
+        var test='';
 
 
 

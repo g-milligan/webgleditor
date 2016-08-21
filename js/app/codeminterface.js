@@ -107,6 +107,17 @@ var codeminterface=(function(){
       }
       return fileWrap;
     },
+    /*//get the substring text in a file, designated by an instance, from, and to, param
+    getContentText:function(instance, fromLine, toLine){
+      var editTabTxt=false;
+      if(toLine==undefined){toLine=fromLine;}
+      //get the text from the "from" line to the "to" line
+      var editTxt='';
+      for(var i=fromLine;i<=toLine;i++){
+        editTxt+=instance.doc.getLine(i)+'\n';
+      }
+      return editTxt;
+    },*/
     //do something for each unsaved path
     eachUnsavedPath:function(callback){
       var self=this;
