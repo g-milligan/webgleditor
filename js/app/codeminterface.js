@@ -1,5 +1,9 @@
 var codeminterface=(function(){
   return{
+    //get the div element, where json data is stored
+    getContentJSONDiv:function(){
+      return jQuery('#frontend-ui #workspace .panel_content:first');
+    },
     //get the div that contains the project path
     getProjectPathDiv:function(){
       return jQuery('#project_file:first');
@@ -103,6 +107,42 @@ var codeminterface=(function(){
       }
       return fileWrap;
     },
+    //do something for each unsaved path
+    eachUnsavedPath:function(callback){
+      var self=this;
+      if(callback!=undefined){
+        var div=self['getContentJSONDiv']();
+        if(div[0].hasOwnProperty('unsaved_paths')){
+          for(var path in div[0]['unsaved_paths']){
+            if(div[0]['unsaved_paths'].hasOwnProperty(path)){
+              callback(path, div[0]['unsaved_paths'][path]);
+            }
+          }
+        }
+      }
+    },
+    //align path with modified content
+    alignPathContent:function(path){
+      var self=this, contentDiv=self['getContentJSONDiv']();
+      if(contentDiv[0].hasOwnProperty('unsaved_paths')){
+        if(contentDiv[0]['unsaved_paths'].hasOwnProperty(path)){
+          var json=contentDiv[0]['unsaved_paths'][path];
+          //need to align content inside index.html
+          if(path==='index.html'){
+            self['eachUnsavedPath'](function(thePath, theJson){
+              if(thePath!=='index.html'){
+                if(!theJson['aligned_index']){
+                  var test='';
+                }
+              }
+            });
+          //need to align content in an individual file
+          }else if(!json['aligned_file']){
+            var test='';
+          }
+        }
+      }
+    },
     openFile:function(path){
       var strPath=path, self=this, ret;
       //get "file" content
@@ -127,18 +167,8 @@ var codeminterface=(function(){
             pathDiv.removeClass('change');
           }
           self['setProjectPath'](strPath+asterisk);
-
-
-
-
-
-
-          //*** update / align content
-
-
-
-
-
+          //update / align content
+          self['alignPathContent'](strPath);
 
           ret=fileWrap;
         }
