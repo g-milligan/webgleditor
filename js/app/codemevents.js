@@ -9,7 +9,14 @@ var codemevents=(function(){
         //*** track the line numbers that got updated
         var editedText=instance.getRange(object.from, object.to);
         var changeType=object.origin;
-        var test='';
+        var filesData=template_parser['getFilesData'](instance.doc.getValue());
+
+        //figure out if any of the file content got chanced
+        for(var f=0;f<filesData.objs.length;f++){
+          var fromPos=filesData.objs[f]['range']['from'];
+          var toPos=filesData.objs[f]['range']['to'];
+          var test='';
+        }
 
 
 

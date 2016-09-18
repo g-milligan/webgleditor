@@ -1,12 +1,40 @@
 var template_parser=(function(){
   return{
+    //get a codemirror position from a given index
+    getPosFromIndex:function(index, content){
+      //CodeMirror.Pos
+      var str=content.substring(0, index);
+      var lines=str.split('\n');
+      var ch=lines[lines.length-1].length;
+      return CodeMirror.Pos(lines.length-1, ch);
+    },
+    //get the substring range of a file within the index.html
+    getFileRange:function(path, content){
+      var range, self=this;
+      var el=self['getDataFileElement'](content, path);
+      if(el!=undefined && el.length>0){
+        var outer_html=el[0].outerHTML;
+        var inner_html=el.html();
+        //*** get the tag start and end
+        var strIndex=content.indexOf(outer_html);
+        var fromPos=self['getPosFromIndex'](strIndex, content);
+        var toPos=self['getPosFromIndex'](strIndex+outer_html.length, content);
+        range={
+            from:fromPos,
+            to:toPos,
+            outer_html:outer_html,
+            inner_html:inner_html
+        };
+      }
+      return range;
+    },
     //pass the full html content to return info about files defined inside the content
     getFilesData:function(content){
-      var ret={objs:[], files:[]};
-      var dataFiles=this['getDataFileElements'](content);
+      var ret={objs:[], files:[]}, self=this;
+      var dataFiles=self['getDataFileElements'](content);
       dataFiles.each(function(){
-        var file=jQuery(this).attr('data-file');
-        var obj={path:file};
+        var file=jQuery(this).attr('data-file'), range=self['getFileRange'](file, content);
+        var obj={path:file, range:range};
         for(var a=0;a<jQuery(this)[0].attributes.length;a++){
           var keyVal=jQuery(this)[0].attributes[a];
           if(keyVal.name.indexOf('data-')===0 && keyVal.name!=='data-file'){
