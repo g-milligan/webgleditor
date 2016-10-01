@@ -13,9 +13,26 @@ var codemevents=(function(){
 
         //figure out if any of the file content got chanced
         for(var f=0;f<filesData.objs.length;f++){
-          var fromPos=filesData.objs[f]['range']['from'];
-          var toPos=filesData.objs[f]['range']['to'];
-          var test='';
+          var range=filesData.objs[f]['range'];
+          var fromPos=range['from'];
+          var toPos=range['to'];
+          var rangeCoords={from:fromPos,to:toPos};
+          //if edit occurred somewhere in the file content
+          if(template_parser['posIsInRange'](object.from, rangeCoords) ||
+          template_parser['posIsInRange'](object.to, rangeCoords)){
+            //if edit occurred in the data-file="path" attributes
+            rangeCoords={from:range.dataFileRange.from, to:range.dataFileRange.to};
+            if(template_parser['posIsInRange'](object.from, rangeCoords) ||
+            template_parser['posIsInRange'](object.to, rangeCoords)){
+              var test='';
+            }
+            //if edit occurred in the data-file="path" attributes
+            rangeCoords={from:range.contentRange.from, to:range.contentRange.to};
+            if(template_parser['posIsInRange'](object.from, rangeCoords) ||
+            template_parser['posIsInRange'](object.to, rangeCoords)){
+              var test='';
+            }
+          }
         }
 
 

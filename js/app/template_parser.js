@@ -1,5 +1,24 @@
 var template_parser=(function(){
   return{
+    //detect if a position is within a given range
+    posIsInRange:function(pos, range){
+      var inRange=false;
+      if(pos.line>=range.from.line){
+        if(pos.line<=range.to.line){
+          inRange=true;
+          if(pos.line==range.from.line){
+            if(pos.ch<range.from.ch){
+              inRange=false;
+            }
+          }else if(pos.line==range.to.line){
+            if(pos.ch>range.to.ch){
+              inRange=false;
+            }
+          }
+        }
+      }
+      return inRange;
+    },
     //get a codemirror position from a given index
     getPosFromIndex:function(index, content){
       //CodeMirror.Pos
@@ -11,20 +30,52 @@ var template_parser=(function(){
     //get the substring range of a file within the index.html
     getFileRange:function(path, content){
       var range, self=this;
-      var el=self['getDataFileElement'](content, path);
-      if(el!=undefined && el.length>0){
-        var outer_html=el[0].outerHTML;
-        var inner_html=el.html();
-        //*** get the tag start and end
-        var strIndex=content.indexOf(outer_html);
-        var fromPos=self['getPosFromIndex'](strIndex, content);
-        var toPos=self['getPosFromIndex'](strIndex+outer_html.length, content);
-        range={
-            from:fromPos,
-            to:toPos,
-            outer_html:outer_html,
-            inner_html:inner_html
-        };
+      if(path.indexOf('"')===-1 && path.indexOf("'")===-1){
+        var el=self['getDataFileElement'](content, path);
+        if(el!=undefined && el.length>0){
+          var outer_html=el[0].outerHTML;
+          var inner_html=el.html();
+          var start_tag='', end_tag='</'+el[0].tagName.toLowerCase()+'>';
+          if(el[0].attributes.length>0){
+            var lastAttr=el[0].attributes[el[0].attributes.length-1];
+            start_tag=outer_html.substring(0, outer_html.indexOf(lastAttr.name+'=')+(lastAttr.name+'=').length);
+            start_tag+=outer_html.substring(start_tag.length, outer_html.indexOf(lastAttr.value)+lastAttr.value.length);
+            start_tag+=outer_html.substring(start_tag.length, outer_html.indexOf('>')+'>'.length);
+          }else{
+            start_tag=outer_html.substring(0, outer_html.indexOf('>')+'>'.length);
+          }
+          var strIndex=content.indexOf(outer_html);
+          var fromPos=self['getPosFromIndex'](strIndex, content);
+          var toPos=self['getPosFromIndex'](strIndex+outer_html.length, content);
+
+          var dataFileFrom, dataFileTo, dataFileRange;
+          var dataFileIndex=start_tag.indexOf('data-file="'+path+'"');
+          if(dataFileIndex!==-1){
+            dataFileFrom=self['getPosFromIndex'](dataFileIndex, start_tag);
+            dataFileTo=self['getPosFromIndex'](dataFileIndex+('data-file="'+path+'"').length, start_tag);
+            dataFileFrom.line+=fromPos.line; dataFileFrom.ch+=fromPos.ch;
+            dataFileTo.line+=fromPos.line; dataFileTo.ch+=fromPos.ch;
+            dataFileRange={from:dataFileFrom,to:dataFileTo};
+          }
+
+          var contentRangeFrom=self['getPosFromIndex'](start_tag.length, outer_html);
+          var contentRangeTo=self['getPosFromIndex'](start_tag.length+inner_html.length, outer_html);
+          contentRangeFrom.line+=fromPos.line; contentRangeFrom.ch+=fromPos.ch;
+          contentRangeTo.line+=fromPos.line; contentRangeTo.ch+=fromPos.ch;
+          var contentRange={from:contentRangeFrom,to:contentRangeTo};
+
+          range={
+              from:fromPos,
+              to:toPos,
+              outer_html:outer_html,
+              inner_html:inner_html,
+              start_tag:start_tag,
+              end_tag:end_tag,
+              path:path,
+              dataFileRange:dataFileRange,
+              contentRange:contentRange
+          };
+        }
       }
       return range;
     },
@@ -34,17 +85,19 @@ var template_parser=(function(){
       var dataFiles=self['getDataFileElements'](content);
       dataFiles.each(function(){
         var file=jQuery(this).attr('data-file'), range=self['getFileRange'](file, content);
-        var obj={path:file, range:range};
-        for(var a=0;a<jQuery(this)[0].attributes.length;a++){
-          var keyVal=jQuery(this)[0].attributes[a];
-          if(keyVal.name.indexOf('data-')===0 && keyVal.name!=='data-file'){
-            var key=keyVal.name.substring('data-'.length);
-            var val=keyVal.value;
-            obj[key]=val;
+        if(range!=undefined){
+          var obj={path:file, range:range};
+          for(var a=0;a<jQuery(this)[0].attributes.length;a++){
+            var keyVal=jQuery(this)[0].attributes[a];
+            if(keyVal.name.indexOf('data-')===0 && keyVal.name!=='data-file'){
+              var key=keyVal.name.substring('data-'.length);
+              var val=keyVal.value;
+              obj[key]=val;
+            }
           }
+          ret['objs'].push(obj);
+          ret['files'].push(file);
         }
-        ret['objs'].push(obj);
-        ret['files'].push(file);
       });
       return ret;
     },
